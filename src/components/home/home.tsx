@@ -1,31 +1,37 @@
 import React, { Component } from 'react'
-// import { Layout } from 'antd';
-// const { Header, Footer } = Layout;
-// import SideMenu from '../side-menu/side-menu';
 import './home.css'
 import { Route, Switch } from 'react-router'
 import * as Routes from 'src/routes'
 import { LeftSider } from 'src/components/sider/sider'
-import { Layout } from 'antd'
-// import { TypeCounterAction, TypeCounterState } from 'src/store/counter'
+import { Avatar, Badge, Button, Layout, Popover } from 'antd'
 import { booksAction, TypeBooksAction, TypeBooksState } from 'src/store/books'
 import { Store } from 'src/store'
 import { bindActionCreators, Dispatch } from 'redux'
-// import { counterAction } from 'src/store/counter'
 import { connect } from 'react-redux'
-// import { Counter } from 'src/components/pages/counter'
 const { Header, Content, Footer } = Layout
 
 import Login from '../../components/login'
 import BooksTable from 'src/components/books-table'
 import Temp from 'src/components/temp'
-// import {Route} from "react-router";
-// import Index from "../books-table/books-table";
 
 interface Props {
   action: TypeBooksAction
   books: TypeBooksState
 }
+
+const content = (
+  <div>
+    <p>User Name</p>
+    <Button
+      onClick={(e: any) => {
+        e.preventDefault()
+        console.log('Signed out')
+      }}
+    >
+      Sign Out
+    </Button>
+  </div>
+)
 
 class Home extends Component<Props> {
   public render() {
@@ -36,7 +42,18 @@ class Home extends Component<Props> {
           <LeftSider />
           {/*Right section*/}
           <Layout>
-            <Header style={{ background: 'black', padding: 0 }} />
+            <Header style={{ background: 'black', padding: 0 }}>
+              {/*Avatar*/}
+              <div style={{ position: 'absolute', right: '3em' }}>
+                <Popover placement={'bottom'} content={content} title="User">
+                  <span style={{ marginRight: 0 }}>
+                    <Badge count={1}>
+                      <Avatar shape="square" icon="user" />
+                    </Badge>
+                  </span>
+                </Popover>
+              </div>
+            </Header>
             <Content style={{ margin: '0 16px' }}>
               <Switch>
                 <Route exact={true} path="/abc" component={Routes.Counter} />
@@ -56,7 +73,7 @@ class Home extends Component<Props> {
               {/*</form>*/}
               {/*<div style={{ padding: 24, background: '#fff', minHeight: 360 }}>{this.props.books.name} is a book.</div>*/}
             </Content>
-            <Footer style={{ textAlign: 'center' }}>Ant Design ©2018 Created by Ant UED</Footer>
+            <Footer style={{ textAlign: 'center' }}>Created by Yathindra Kodithuwakku</Footer>
           </Layout>
         </Layout>
       </div>
