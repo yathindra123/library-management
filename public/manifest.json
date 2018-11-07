@@ -1,7 +1,7 @@
 {
-  "name": "my-frontend-boilerplate",
-  "short_name": "boilerplate",
-  "description": "A boilerplate application for front-end with react, redux, typescript and webpack.",
+  "name": "library-management",
+  "short_name": "library-management",
+  "description": "Library management application for university of westminster",
   "lang": "ja",
   "start_url": "/",
   "display": "standalone",

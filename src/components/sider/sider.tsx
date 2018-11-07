@@ -16,7 +16,12 @@ export class LeftSider extends Component {
 
   render() {
     return (
-      <Sider collapsible={true} collapsed={this.state.collapsed} onCollapse={this.onCollapse}>
+      <Sider
+        style={{ marginTop: '4.3em' }}
+        collapsible={true}
+        collapsed={this.state.collapsed}
+        onCollapse={this.onCollapse}
+      >
         <div className="logo" />
         <Menu theme="dark" defaultSelectedKeys={['1']} mode="inline">
           <Menu.Item key="1">
