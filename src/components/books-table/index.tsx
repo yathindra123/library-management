@@ -5,6 +5,7 @@ import { Store } from 'src/store'
 import { bindActionCreators, Dispatch } from 'redux'
 import { connect } from 'react-redux'
 import CollectionCreateForm from 'src/components/books-table/add-book-modal'
+import DeleteBook from 'src/components/books-table/delete-book-modal'
 
 interface Props {
   action: TypeBooksAction
@@ -121,7 +122,7 @@ class BooksTable extends Component<Props> {
 
   public render() {
     const handleAdd = () => {
-      this.props.action.add(['namez' + Math.ceil(Math.random() * 8), 'sth', 'someother'])
+      // this.props.action.add(['namez' + Math.ceil(Math.random() * 8), 'sth', 'someother'])
     }
 
     // @ts-ignore
@@ -184,7 +185,7 @@ class BooksTable extends Component<Props> {
               onClick={this.showAddModal}
             />
             <Button onClick={handleAdd} shape="circle" icon="edit" style={{ marginRight: '1em' }} />
-            <Button shape="circle" icon="delete" />
+            <DeleteBook />
           </Col>
         </Row>
         <Table columns={columns} dataSource={this.state.filteredData} />

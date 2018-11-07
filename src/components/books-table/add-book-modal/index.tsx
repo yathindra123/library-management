@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Modal, Form, Input, Radio } from 'antd'
+import { Modal, Form, Input, Radio, DatePicker, TimePicker } from 'antd'
 
 const FormItem = Form.Item
 
@@ -15,6 +15,20 @@ const CollectionCreateForm = Form.create()(
     render() {
       const { visible, onCancel, onCreate, form } = this.props
       const { getFieldDecorator } = form
+      const formItemLayout = {
+        labelCol: {
+          xs: { span: 24 },
+          sm: { span: 8 }
+        },
+        wrapperCol: {
+          xs: { span: 24 },
+          sm: { span: 16 }
+        }
+      }
+      const config = {
+        rules: [{ type: 'object', required: true, message: 'Please select time!' }]
+      }
+
       return (
         <Modal
           visible={visible}
@@ -31,6 +45,12 @@ const CollectionCreateForm = Form.create()(
             </FormItem>
             <FormItem label="Description">
               {getFieldDecorator('description')(<Input type="textarea" />)}
+            </FormItem>
+            <FormItem {...formItemLayout} label="DatePicker">
+              {getFieldDecorator('date-picker', config)(<DatePicker />)}
+            </FormItem>
+            <FormItem {...formItemLayout} label="TimePicker">
+              {getFieldDecorator('time-picker', config)(<TimePicker />)}
             </FormItem>
             <FormItem className="collection-create-form_last-form-item">
               {getFieldDecorator('modifier', {
