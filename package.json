@@ -5,14 +5,14 @@
   "main": "src/index.tsx",
   "license": "MIT",
   "author": "Yathindra Kodithuwakku",
-  "homepage": "https://github.com/ymkz/my-frontend-boilerplate",
-  "description": "A boilerplate application for front-end with react, redux, react router, ant, typescript and webpack.",
+  "homepage": "https://github.com/yathindra123/library-management",
+  "description": "",
   "repository": {
     "type": "git",
-    "url": "https://github.com/yathindra123/react-redux-ant-ts-boilerplate"
+    "url": "https://github.com/yathindra123/library-management"
   },
   "bugs": {
-    "url": "https://github.com/yathindra123/react-redux-ant-ts-boilerplate/issues"
+    "url": "https://github.com/yathindra123/library-management/issues"
   },
   "scripts": {
     "start": "webpack-serve --config webpack.config.dev.js",
