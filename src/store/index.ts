@@ -6,7 +6,7 @@ import { counterReducer, TypeCounterState } from 'src/store/counter'
 import { booksReducer, TypeBooksState } from 'src/store/books'
 
 export interface Store {
-  counter: TypeCounterState,
+  counter: TypeCounterState
   books: TypeBooksState
 }
 
