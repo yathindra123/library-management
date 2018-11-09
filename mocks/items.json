@@ -1,0 +1,64 @@
+{
+  "items": [
+    {
+      "key": "978-1-891830-75-4",
+      "title": "Harry potter",
+      "sector": "fiction",
+      "author": ["J. K. Rowling","K. Rowling","J. Rowling"],
+      "publisher": "Bloomsbury",
+      "borrowedDate": "2018-10-30",
+      "type": "book",
+      "numOfPages": 800,
+      "actors": [],
+      "availLanguages": ["english", "sinhala"],
+      "availSubtitles": [],
+      "publicationDate": "2010-04-09",
+      "personBorrowed": "51234"
+    },
+    {
+      "key": "978-1-60309-050-6",
+      "title": "some book",
+      "sector": "science",
+      "author": ["some author", "some author1", "some author2"],
+      "publisher": "publisher name",
+      "borrowedDate": "2018-11-07",
+      "type": "book",
+      "numOfPages": 1800,
+      "actors": [],
+      "availLanguages": ["english", "italian"],
+      "availSubtitles": ["sub1", "sub2"],
+      "publicationDate": "2007-01-07",
+      "personBorrowed": "12345"
+    },
+    {
+      "key": "978-1-60309-069-8",
+      "title": "some dvd",
+      "sector": "music",
+      "author": ["some singer"],
+      "publisher": "red fox",
+      "borrowedDate": "2018-11-07",
+      "type": "dvd",
+      "numOfPages": 0,
+      "actors": ["actor1", "actor2"],
+      "availLanguages": ["english", "french"],
+      "availSubtitles": ["sub1", "sub2"],
+      "publicationDate": "2001-04-28",
+      "personBorrowed": "12345"
+    },
+    {
+      "key": "178-1-60309-050-6",
+      "title": "some other book",
+      "sector": "bio science",
+      "author": ["some author5", "some author1", "some author2"],
+      "publisher": "publisher name",
+      "borrowedDate": "2018-10-06",
+      "type": "book",
+      "numOfPages": 100,
+      "actors": [],
+      "availLanguages": ["english", "italian"],
+      "availSubtitles": ["sub1", "sub2"],
+      "publicationDate": "2007-01-07",
+      "personBorrowed": "12345"
+    }
+  ]
+}

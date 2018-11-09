@@ -8,12 +8,13 @@ interface Props {
   onCancel: any
   onCreate: any
   form: any
+  editableData: any
 }
 
-const CollectionCreateForm = Form.create()(
+const EditBookForm = Form.create()(
   class extends Component<Props> {
     render() {
-      const { visible, onCancel, onCreate, form } = this.props
+      const { visible, onCancel, onCreate, form, editableDate } = this.props
       const { getFieldDecorator } = form
       const formItemLayout = {
         labelCol: {
@@ -29,11 +30,12 @@ const CollectionCreateForm = Form.create()(
         rules: [{ type: 'object', required: true, message: 'Please select time!' }]
       }
 
+      console.log(editableDate)
       return (
         <Modal
           visible={visible}
-          title="Create a new collection"
-          okText="Create"
+          title="Edit the book item"
+          okText="Update"
           onCancel={onCancel}
           onOk={onCreate}
         >
@@ -69,4 +71,4 @@ const CollectionCreateForm = Form.create()(
   }
 )
 
-export default CollectionCreateForm
+export default EditBookForm

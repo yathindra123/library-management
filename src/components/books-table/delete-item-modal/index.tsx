@@ -1,23 +1,18 @@
 import React, { Component } from 'react'
-import { Button, message, Popconfirm } from 'antd'
+import { Button, Popconfirm } from 'antd'
 
-function confirm(e: any) {
-  console.log(e)
-  message.success('Successfully deleted')
+interface Props {
+  confirm: any
+  cancel: any
 }
 
-function cancel(e: any) {
-  console.log(e)
-  message.error('Canceled deleting')
-}
-
-class DeleteBook extends Component {
+class DeleteBook extends Component<Props> {
   render() {
     return (
       <Popconfirm
         title="Are you sure delete this book?"
-        onConfirm={confirm}
-        onCancel={cancel}
+        onConfirm={this.props.confirm}
+        onCancel={this.props.cancel}
         okText="Yes"
         cancelText="No"
         placement="bottom"

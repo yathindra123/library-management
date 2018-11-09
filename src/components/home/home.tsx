@@ -12,7 +12,7 @@ const { Header, Content, Footer } = Layout
 
 import Login from '../../components/login'
 import BooksTable from 'src/components/books-table'
-import Temp from 'src/components/temp'
+import MyDocument from 'src/components/temp'
 
 interface Props {
   action: TypeBooksAction
@@ -56,22 +56,13 @@ class Home extends Component<Props> {
             </Header>
             <Content style={{ margin: '0 16px' }}>
               <Switch>
+                <Route exact={true} path="/" component={BooksTable} />
                 <Route exact={true} path="/abc" component={Routes.Counter} />
                 <Route exact={true} path="/login" component={Login} />
                 <Route exact={true} path="/books" component={BooksTable} />
-                <Route exact={true} path="/temp" component={Temp} />
+                <Route exact={true} path="/temp" component={MyDocument} />
                 <Route render={Routes.NotFoundRedirectToRoot} />
               </Switch>
-
-              {/*<Breadcrumb style={{ margin: '16px 0' }}>*/}
-              {/*<Breadcrumb.Item>User</Breadcrumb.Item>*/}
-              {/*<Breadcrumb.Item>Bill</Breadcrumb.Item>*/}
-              {/*</Breadcrumb>*/}
-              {/*<form onSubmit={this.handleForm}>*/}
-              {/*<input type="text" />*/}
-              {/*<button type="submit">Add</button>*/}
-              {/*</form>*/}
-              {/*<div style={{ padding: 24, background: '#fff', minHeight: 360 }}>{this.props.books.name} is a book.</div>*/}
             </Content>
             <Footer style={{ textAlign: 'center' }}>Created by Yathindra Kodithuwakku</Footer>
           </Layout>
