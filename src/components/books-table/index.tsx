@@ -1,108 +1,115 @@
-import React, { Component } from 'react'
-import { Table, Row, Col, Button, Layout, message, Tag, Divider } from 'antd'
-import { booksAction, TypeBooksAction, TypeBooksState } from 'src/store/books'
-import { Store } from 'src/store'
-import { bindActionCreators, Dispatch } from 'redux'
-import { connect } from 'react-redux'
-import AddBookForm from 'src/components/books-table/add-item-modal'
-import DeleteBook from 'src/components/books-table/delete-item-modal'
-import EditBookForm from 'src/components/books-table/edit-item-modal'
-import BorrowItemForm from 'src/components/borrow-item'
+import React, { Component } from 'react';
+import { Table, Row, Col, Button, Layout, message, Tag, Divider } from 'antd';
+import { booksAction, TypeBooksAction, TypeBooksState } from 'src/store/books';
+import { Store } from 'src/store';
+import { bindActionCreators, Dispatch } from 'redux';
+import { connect } from 'react-redux';
+import AddBookForm from 'src/components/books-table/add-item-modal';
+import DeleteBook from 'src/components/books-table/delete-item-modal';
+import EditBookForm from 'src/components/books-table/edit-item-modal';
+import BorrowItemForm from 'src/components/borrow-item';
 // import jsPDF from 'jspdf'
 // import mocks
-import items from '../../../mocks/items.json'
-import ReturnItemForm from 'src/components/return-item'
+import items from '../../../mocks/items.json';
+import ReturnItemForm from 'src/components/return-item';
+import axios from 'axios';
 
 interface Props {
-  action: TypeBooksAction
-  books: TypeBooksState
+  action: TypeBooksAction;
+  books: TypeBooksState;
 }
 
-const maximumPossibleItems = 150
-const maximumPossibleBooks = 100
-const maximumPossibleDVDs = 50
-const currentBorrowReadyItem: any
-
-let data: any = []
-// for (let i = 0; i < 46; i++) {
-//   data.push({
-//     key: i,
-//     name: `Edward King ${i}`,
-//     age: 32,
-//     address: `London, Park Lane no. ${i}`
-//   })
-// }
-
-data = Array.from(items.items)
-
-// create a new array from for searching purpose
-const dataRender: any = Object.assign([], data)
-
-const dataSource = dataRender.map((item: any) => {
-  return item.name
-})
-
-let filteredBooks: string[] = dataSource
+const maximumPossibleItems = 150;
+const maximumPossibleBooks = 100;
+const maximumPossibleDVDs = 50;
 
 const getCurrentDate = () => {
   // format current date
-  let today = new Date()
-  let dd = today.getDate()
+  let today = new Date();
+  let dd = today.getDate();
 
-  let mm = today.getMonth() + 1
-  const yyyy = today.getFullYear()
+  let mm = today.getMonth() + 1;
+  const yyyy = today.getFullYear();
   if (dd < 10) {
-    dd = '0' + dd
+    // @ts-ignore
+    dd = '0' + dd;
   }
 
   if (mm < 10) {
-    mm = '0' + mm
+    // @ts-ignore
+    mm = '0' + mm;
   }
 
-  today = yyyy + '-' + mm + '-' + dd
+  // @ts-ignore
+  today = yyyy + '-' + mm + '-' + dd;
 
-  return today
-}
+  return today;
+};
 
 // sort data list by due date
 function sortBy(index: any) {
   // @ts-ignore
   return (left, right) => {
     if (left[index] > right[index]) {
-      return 1
+      return 1;
     } else if (left[index] < right[index]) {
-      return -1
+      return -1;
     }
-    return 0
-  }
+    return 0;
+  };
 }
 
 function getDateDifference(startDate: string, endDate: string) {
   const diff = Math.floor(
     (Date.parse(endDate.replace(/-/g, '/')) - Date.parse(startDate.replace(/-/g, '/'))) / 86400000
-  )
+  );
 
-  return diff
+  return diff;
 }
 
 function calculateDebt(dateDiff: any) {
-  let tempDiff = dateDiff
-  let debt = 0
+  let tempDiff = dateDiff;
+  let debt = 0;
 
   if (tempDiff > 3) {
-    debt += 3 * 24 * 0.2
-    tempDiff -= 3
+    debt += 3 * 24 * 0.2;
+    tempDiff -= 3;
   } else {
-    debt += tempDiff * 24 * 0.2
+    debt += tempDiff * 24 * 0.2;
   }
 
   if (tempDiff > 0) {
-    debt += tempDiff * 24 * 0.5
+    debt += tempDiff * 24 * 0.5;
   }
 
-  return debt
+  return debt;
 }
 class BooksTable extends Component<Props> {
+  // data: any = Array.from(this.props.books.temp);
+
+  // create a new array from for searching purpose
+  public state = {
+    selectedRowKeys: [], // Check here to configure the default column
+    data: [],
+    loading: false,
+    visibleAdd: false,
+    visibleEdit: false,
+    visibleBorrow: false,
+    visibleReturn: false,
+    filteredData: [],
+    editableData: {},
+    borrowingItem: {},
+    returningItem: {}
+  };
+
+  dataRender: any = Object.assign([], this.state.data);
+
+  dataSource = this.dataRender.map((item: any) => {
+    return item.name;
+  });
+
+  filteredBooks: string[] = this.dataSource;
+
   columns = [
     {
       title: 'ISBN',
@@ -185,14 +192,14 @@ class BooksTable extends Component<Props> {
           <Button
             type="primary"
             onClick={() => {
-              // console.log(record)
+              console.log(text);
               // @ts-ignore
               this.setState({
                 borrowingItem: record
-              })
+              });
               // console.log(this.state.visibleAdd)
               // currentBorrowReadyItem = record
-              this.showBorrowModal()
+              this.showBorrowModal();
             }}
           >
             Borrow
@@ -205,11 +212,11 @@ class BooksTable extends Component<Props> {
               // @ts-ignore
               this.setState({
                 returningItem: record
-              })
+              });
               // console.log(this.state.visibleAdd)
               // currentBorrowReadyItem = record
-              this.showReturnModal()
-              this.handleReturn()
+              this.showReturnModal();
+              this.handleReturn();
             }}
           >
             Return
@@ -217,118 +224,119 @@ class BooksTable extends Component<Props> {
         </span>
       )
     }
-  ]
-  public state = {
-    selectedRowKeys: [], // Check here to configure the default column
-    loading: false,
-    visibleAdd: false,
-    visibleEdit: false,
-    visibleBorrow: false,
-    visibleReturn: false,
-    filteredData: data,
-    editableData: {},
-    borrowingItem: {},
-    returningItem: {}
-  }
+  ];
 
-  private addFormRef: any
+  private addFormRef: any;
   // @ts-ignore
-  private editFormRef: any
-  private borrowFormRef: any
-  private returnFormRef: any
+  private editFormRef: any;
+  private borrowFormRef: any;
+
+  componentDidMount() {
+    axios.get(`http://www.mocky.io/v2/5be796733000006e0058c29d`).then(res => {
+      this.props.action.setBooksList(res.data.items);
+      console.log('res1--------------------------');
+      this.setState({
+        data: this.props.books.books
+      });
+      console.log(Array.from(this.props.books.temp));
+      console.log('res--------------------------');
+    });
+  }
 
   showAddModal = () => {
     this.setState({
       visibleAdd: true
-    })
-  }
+    });
+  };
 
   showEditModal = () => {
-
-    message.info('Not implemented yet')
-    let tempItem = {}
+    message.info('Not implemented yet');
+    let tempItem = {};
     // get item by isbn
     items.items.map((item: any) => {
       // console.log('KY ', item.key, ' N ', this.state.selectedRowKeys[0])
       if (item.key === this.state.selectedRowKeys[0]) {
-        tempItem = item
+        tempItem = item;
         // message.info('Not implemented yet')
       }
-    })
+    });
     this.setState({
       visibleEdit: true,
       editableData: tempItem
-    })
-  }
+    });
+  };
 
   showBorrowModal = () => {
+    console.log('yayy books below');
+    // console.log(this.state.temp);
+    console.log('yayy books above');
     this.setState({
       visibleBorrow: true
-    })
-  }
+    });
+  };
 
   showReturnModal = () => {
     this.setState({
       visibleReturn: true
-    })
-  }
+    });
+  };
 
   handleOk = (e: any) => {
-    console.log(e)
+    console.log(e);
     this.setState({
       visibleAdd: false
-    })
-  }
+    });
+  };
 
   handleCancelAddModal = (e: any) => {
-    console.log(e)
+    console.log(e);
     this.setState({
       visibleAdd: false
-    })
-  }
+    });
+  };
 
   handleCancelEditModal = (e: any) => {
-    console.log(e)
+    console.log(e);
     this.setState({
       visibleEdit: false
-    })
-  }
+    });
+  };
 
   handleCancelBorrowModal = (e: any) => {
-    console.log(e)
+    console.log(e);
     this.setState({
       visibleBorrow: false
-    })
-  }
+    });
+  };
 
   handleCancelReturnModal = (e: any) => {
-    console.log(e)
+    console.log(e);
     this.setState({
       visibleReturn: false
-    })
-  }
+    });
+  };
 
   // calls when the items add form submits
   handleCreate = () => {
-    const form = this.addFormRef.props.form
+    const form = this.addFormRef.props.form;
     form.validateFields((err: any, values: any) => {
       if (err) {
-        return
+        return;
       }
 
-      const actors = values.actors.split(',')
-      const languages = values.languages.split(',')
-      const subtitles = values.subtitles.split(',')
+      const actors = values.actors.split(',');
+      const languages = values.languages.split(',');
+      const subtitles = values.subtitles.split(',');
 
       const publicationDate = new Date(values.publicationDate)
         .toISOString()
         .slice(0, 10)
-        .replace(/-/g, '-')
+        .replace(/-/g, '-');
 
       const borrowedDate = new Date(values.borrowedDate)
         .toISOString()
         .slice(0, 10)
-        .replace(/-/g, '-')
+        .replace(/-/g, '-');
 
       const book = {
         key: values.isbn,
@@ -344,264 +352,271 @@ class BooksTable extends Component<Props> {
         availSubtitles: subtitles,
         publicationDate,
         personBorrowed: values.borrower
-      }
+      };
 
-      items.items.push(book)
+      items.items.push(book);
+      // this.setState(() => {
+      //   data: this.state.data.push(book);
+      // });
 
-      const itemsList = items.items
-      form.resetFields()
-      this.setState({ visibleAdd: false, filteredData: itemsList })
-    })
-  }
+      const itemsList = items.items;
+      form.resetFields();
+      this.setState({ visibleAdd: false, filteredData: itemsList });
+    });
+  };
 
   handleUpdate = () => {
-    const form = this.editFormRef.props.form
+    const form = this.editFormRef.props.form;
     form.validateFields((err: any, values: any) => {
       if (err) {
-        return
+        return;
       }
 
-      const hasSelectedMoreOrLessThanOne = this.state.selectedRowKeys.length !== 1
+      const hasSelectedMoreOrLessThanOne = this.state.selectedRowKeys.length !== 1;
 
       if (hasSelectedMoreOrLessThanOne) {
-        message.error('Please pick only one book to update')
-        return
+        message.error('Please pick only one book to update');
+        return;
       }
 
-      console.log('Updated values of form: ', values)
-      form.resetFields()
-      this.setState({ visibleAdd: false })
-    })
-  }
+      console.log('Updated values of form: ', values);
+      form.resetFields();
+      this.setState({ visibleAdd: false });
+    });
+  };
 
   handleBorrow = () => {
-    const form = this.borrowFormRef.props.form
+    const form = this.borrowFormRef.props.form;
     form.validateFields((err: any, values: any) => {
       if (err) {
-        return
+        return;
       }
 
       const borrowingDate = new Date(values.borrowingDate)
         .toISOString()
         .slice(0, 10)
-        .replace(/-/g, '-')
+        .replace(/-/g, '-');
 
       // update json
       items.items.map(item => {
         if (item.key === values.isbn) {
           // update record
-          item.borrowedDate = borrowingDate
-          item.personBorrowed = values.borrowerId
+          item.borrowedDate = borrowingDate;
+          item.personBorrowed = values.borrowerId;
         }
-      })
+      });
 
-      form.resetFields()
-      this.setState({ visibleBorrow: false })
-    })
-  }
+      form.resetFields();
+      this.setState({ visibleBorrow: false });
+    });
+  };
 
   handleReturn = () => {
     // doc.save('a4.pdf')
     setTimeout(() => {
-      console.log('please wait 1 sec', this.state.returningItem)
+      console.log('please wait 1 sec', this.state.returningItem);
+      // @ts-ignore
       if (!this.state.returningItem.personBorrowed) {
-        message.error('This item does not borrowed to return')
-        return
+        message.error('This item does not borrowed to return');
+        return;
       }
-      const returningDate = getCurrentDate()
+      const returningDate = getCurrentDate();
 
       // check if due are there to pay
       const dateDifference = getDateDifference(
+        // @ts-ignore
         this.state.returningItem.borrowedDate,
         returningDate.toString()
-      )
+      );
 
+      // @ts-ignore
       if (this.state.returningItem.type === 'book') {
         if (dateDifference > 7) {
-          message.error('There is a debt to pay of ' + calculateDebt(dateDifference))
+          message.error('There is a debt to pay of ' + calculateDebt(dateDifference));
         } else {
-          message.info('Successfully returned the book')
+          message.info('Successfully returned the book');
         }
       } else {
         if (dateDifference > 3) {
-          message.error('There is a debt to pay of ' + calculateDebt(dateDifference))
+          message.error('There is a debt to pay of ' + calculateDebt(dateDifference));
         } else {
-          message.info('Successfully returned the book')
+          message.info('Successfully returned the book');
         }
       }
 
       // update json
       items.items.map(item => {
+        // @ts-ignore
         if (item.key === this.state.returningItem.key) {
           // update record
-          item.borrowedDate = ''
-          item.personBorrowed = ''
+          item.borrowedDate = '';
+          item.personBorrowed = '';
         }
-      })
+      });
 
-      this.setState({ visibleBorrow: false })
-    }, 1000)
-  }
+      this.setState({ visibleBorrow: false });
+    }, 1000);
+  };
 
   // when confirm the delete confirmation
   confirm = (e: any) => {
-    console.log(e)
-    const hasSelected = this.state.selectedRowKeys.length > 0
+    console.log(e);
+    const hasSelected = this.state.selectedRowKeys.length > 0;
     if (hasSelected) {
       items.items.map((item, index) => {
         this.state.selectedRowKeys.map(isbn => {
           if (item.key === isbn) {
-            console.log('index : ', index, ' item: ', item)
+            console.log('index : ', index, ' item: ', item);
             // delete items.items[index]
-            items.items.splice(index, 1)
-            console.log(items.items)
-            this.setState({ filteredData: items.items })
+            items.items.splice(index, 1);
+            console.log(items.items);
+            this.setState({ filteredData: items.items });
           }
-        })
-      })
+        });
+      });
       // delete items.items[0]
 
-      message.success('Successfully deleted')
+      message.success('Successfully deleted');
     } else {
-      message.error('Please pick items to delete')
+      message.error('Please pick items to delete');
     }
-  }
+  };
 
   // when cancel the delete confirmation
   cancel = (e: any) => {
-    console.log(e)
-    message.error('Canceled deleting')
-  }
+    console.log(e);
+    message.error('Canceled deleting');
+  };
 
   saveFormRef = (formRef: any) => {
-    this.addFormRef = formRef
-  }
+    this.addFormRef = formRef;
+  };
 
   updateFormRef = (formRef: any) => {
-    this.editFormRef = formRef
-  }
+    this.editFormRef = formRef;
+  };
 
   borrowItemFormRef = (formRef: any) => {
-    this.borrowFormRef = formRef
-  }
+    this.borrowFormRef = formRef;
+  };
 
   returnItemFormRef = (formRef: any) => {
-    this.returnFormRef = formRef
-  }
+    console.log(formRef);
+  };
 
   generateReport = () => {
-    const tempReportData: any[] = []
-    const tableData = this.state.filteredData
-    const currentDate = getCurrentDate()
+    const tempReportData: any[] = [];
+    const tableData = this.state.data;
+    const currentDate = getCurrentDate();
 
     // get only items which reached due dates
     tableData.map((item: any) => {
-      const dateDifference = getDateDifference(item.borrowedDate, currentDate.toString())
+      const dateDifference = getDateDifference(item.borrowedDate, currentDate.toString());
 
       if (item.type === 'book') {
         if (dateDifference > 7) {
-          const debt = calculateDebt(dateDifference)
+          const debt = calculateDebt(dateDifference);
           tempReportData.push({
             dateDifference,
             debt,
             ...item
-          })
+          });
         }
       } else {
         if (dateDifference > 3) {
-          const debt = calculateDebt(dateDifference)
+          const debt = calculateDebt(dateDifference);
           tempReportData.push({
             dateDifference,
             debt,
             ...item
-          })
+          });
         }
       }
-    })
+    });
 
     // sort by dateDifference
-    tempReportData.sort(sortBy('dateDifference'))
+    tempReportData.sort(sortBy('dateDifference'));
 
-    console.table(tempReportData)
-  }
+    console.table(tempReportData);
+  };
 
   public onSelectChange = (selectedRowKeys: any) => {
-    console.log('selectedRowKeys changed: ', selectedRowKeys)
-    this.setState({ selectedRowKeys })
-  }
+    console.log('selectedRowKeys changed: ', selectedRowKeys);
+    this.setState({ selectedRowKeys });
+  };
 
-  public updateTable = (value: string) => {
-    const filteredItems: string[] = []
-    dataSource.map((item: string) => {
-      if (item.toLowerCase().indexOf(value.toLowerCase()) !== -1) {
-        filteredItems.push(item)
-      }
-    })
-
-    filteredBooks = filteredItems
-
-    const tempData: any[] = []
-    data.filter((item: any) => {
-      filteredBooks.map(book => {
-        if (book === item.name) {
-          tempData.push(item)
-        }
-      })
-    })
-
-    this.setState({ filteredData: tempData })
-  }
+  // public updateTable = (value: string) => {
+  //   const filteredItems: string[] = [];
+  //   this.dataSource.map((item: string) => {
+  //     if (item.toLowerCase().indexOf(value.toLowerCase()) !== -1) {
+  //       filteredItems.push(item);
+  //     }
+  //   });
+  //
+  //   this.filteredBooks = filteredItems;
+  //
+  //   const tempData: any[] = [];
+  //   this.data.filter((item: any) => {
+  //     this.filteredBooks.map(book => {
+  //       if (book === item.name) {
+  //         tempData.push(item);
+  //       }
+  //     });
+  //   });
+  //
+  //   this.setState({ filteredData: tempData });
+  // };
 
   public render() {
-    const { selectedRowKeys } = this.state
-    console.log(items)
+    const { selectedRowKeys } = this.state;
+    console.log(items);
     const rowSelection = {
       selectedRowKeys,
       onChange: this.onSelectChange
-    }
+    };
 
     const handleEdit = () => {
-      this.showEditModal()
+      this.showEditModal();
       // this.props.action.add(['namez' + Math.ceil(Math.random() * 8), 'sth', 'someother'])
-    }
+    };
 
     const handleAdd = () => {
-      checkForItemsLimits()
-      this.showAddModal()
+      checkForItemsLimits();
+      this.showAddModal();
       // this.props.action.add(['namez' + Math.ceil(Math.random() * 8), 'sth', 'someother'])
-    }
+    };
 
     const checkForItemsLimits = () => {
       // if items count is higher than 150
       if (items.items.length >= maximumPossibleItems) {
-        message.error('150 max items limit has been exceeded')
-        message.error('Try again by deleting unwanted items')
-        return
+        message.error('150 max items limit has been exceeded');
+        message.error('Try again by deleting unwanted items');
+        return;
       }
 
-      let booksCount = 0
-      let dvdCount = 0
+      let booksCount = 0;
+      let dvdCount = 0;
 
       // find books and dvds count
       for (const item of items.items) {
         if (item.type === 'book') {
-          booksCount++
+          booksCount++;
         } else {
-          dvdCount++
+          dvdCount++;
         }
       }
 
       // check books and dvds for maximum possible count
       if (booksCount > maximumPossibleBooks) {
-        message.error(`${maximumPossibleBooks} items of books limit has been exceeded`)
-        message.error('Try again by deleting unwanted books')
-        return
+        message.error(`${maximumPossibleBooks} items of books limit has been exceeded`);
+        message.error('Try again by deleting unwanted books');
+        return;
       } else if (dvdCount > maximumPossibleDVDs) {
-        message.error(`${maximumPossibleDVDs} items of DVDs limit has been exceeded`)
-        message.error('Try again by deleting unwanted DVDs')
-        return
+        message.error(`${maximumPossibleDVDs} items of DVDs limit has been exceeded`);
+        message.error('Try again by deleting unwanted DVDs');
+        return;
       }
-    }
+    };
 
     // const hasSelected = selectedRowKeys.length > 0
     // console.log('size: ', items.items.length)
@@ -630,6 +645,7 @@ class BooksTable extends Component<Props> {
           {/*/>*/}
 
           {/*add modal*/}
+          {/*<h1>{this.props.books.temp ? JSON.stringify(this.props.books.temp) : 'sdfio'}</h1>*/}
           <div>
             <AddBookForm
               wrappedComponentRef={this.saveFormRef}
@@ -689,24 +705,24 @@ class BooksTable extends Component<Props> {
           style={{ overflowX: 'auto' }}
           rowSelection={rowSelection}
           columns={this.columns}
-          dataSource={this.state.filteredData}
+          dataSource={this.state.data}
         />
       </Layout>
-    )
+    );
   }
 }
 
 const mapStateToProps = (state: Store) => ({
   books: state.books
-})
+});
 
 const mapDisptachToProps = (dispatch: Dispatch) => ({
   action: bindActionCreators({ ...booksAction }, dispatch)
-})
+});
 
 export default connect(
   mapStateToProps,
   mapDisptachToProps
-)(BooksTable)
+)(BooksTable);
 
 // export default BooksTable

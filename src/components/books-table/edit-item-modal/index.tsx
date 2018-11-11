@@ -1,21 +1,21 @@
-import React, { Component } from 'react'
-import { Modal, Form, Input, Radio, DatePicker, TimePicker } from 'antd'
+import React, { Component } from 'react';
+import { Modal, Form, Input, Radio, DatePicker, TimePicker } from 'antd';
 
-const FormItem = Form.Item
+const FormItem = Form.Item;
 
 interface Props {
-  visible: any
-  onCancel: any
-  onCreate: any
-  form: any
-  editableData: any
+  visible: any;
+  onCancel: any;
+  onCreate: any;
+  form: any;
+  editableData: any;
 }
 
 const EditBookForm = Form.create()(
   class extends Component<Props> {
     render() {
-      const { visible, onCancel, onCreate, form, editableDate } = this.props
-      const { getFieldDecorator } = form
+      const { visible, onCancel, onCreate, form } = this.props;
+      const { getFieldDecorator } = form;
       const formItemLayout = {
         labelCol: {
           xs: { span: 24 },
@@ -25,12 +25,11 @@ const EditBookForm = Form.create()(
           xs: { span: 24 },
           sm: { span: 16 }
         }
-      }
+      };
       const config = {
         rules: [{ type: 'object', required: true, message: 'Please select time!' }]
-      }
+      };
 
-      console.log(editableDate)
       return (
         <Modal
           visible={visible}
@@ -66,9 +65,9 @@ const EditBookForm = Form.create()(
             </FormItem>
           </Form>
         </Modal>
-      )
+      );
     }
   }
-)
+);
 
-export default EditBookForm
+export default EditBookForm;

@@ -1,25 +1,25 @@
-import React, { Component } from 'react'
+import React, { Component } from 'react';
 
-import { Form, Icon, Input, Button, Checkbox } from 'antd'
+import { Form, Icon, Input, Button, Checkbox } from 'antd';
 
-const FormItem = Form.Item
+const FormItem = Form.Item;
 
 interface Props {
-  form?: any
+  form?: any;
 }
 
 class LoginForm extends Component<Props> {
   handleSubmit = (e: any) => {
-    e.preventDefault()
+    e.preventDefault();
     this.props.form.validateFields((err: any, values: any) => {
       if (!err) {
-        console.log('Received values of form: ', values)
+        console.log('Received values of form: ', values);
       }
-    })
-  }
+    });
+  };
 
   render() {
-    const { getFieldDecorator } = this.props.form
+    const { getFieldDecorator } = this.props.form;
     return (
       <Form onSubmit={this.handleSubmit} className="login-form">
         <FormItem>
@@ -57,10 +57,10 @@ class LoginForm extends Component<Props> {
           Or <a href="">register now!</a>
         </FormItem>
       </Form>
-    )
+    );
   }
 }
 
 // @ts-ignore
-const Login = Form.create()(LoginForm)
-export default Login
+const Login = Form.create()(LoginForm);
+export default Login;

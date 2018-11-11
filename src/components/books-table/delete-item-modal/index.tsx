@@ -1,9 +1,9 @@
-import React, { Component } from 'react'
-import { Button, Popconfirm } from 'antd'
+import React, { Component } from 'react';
+import { Button, Popconfirm } from 'antd';
 
 interface Props {
-  confirm: any
-  cancel: any
+  confirm: any;
+  cancel: any;
 }
 
 class DeleteBook extends Component<Props> {
@@ -19,7 +19,7 @@ class DeleteBook extends Component<Props> {
       >
         <Button shape="circle" icon="delete" />
       </Popconfirm>
-    )
+    );
   }
 }
-export default DeleteBook
+export default DeleteBook;
