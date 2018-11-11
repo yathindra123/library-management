@@ -1,66 +1,66 @@
-import React, { Component } from 'react'
-import { Modal, Form, Input, Radio, DatePicker, Icon, Button } from 'antd'
-import moment from 'moment'
+import React, { Component } from 'react';
+import { Modal, Form, Input, Radio, DatePicker, Icon, Button } from 'antd';
+import moment from 'moment';
 
-const FormItem = Form.Item
+const FormItem = Form.Item;
 // const Option = Select.Option
 
 interface Props {
-  visible: any
-  onCancel: any
-  onCreate: any
-  form: any
+  visible: any;
+  onCancel: any;
+  onCreate: any;
+  form: any;
 }
 
 const AddBookForm = Form.create()(
   class extends Component<Props> {
     remove = (k: any) => {
-      const { form } = this.props
+      const { form } = this.props;
       // can use data-binding to get
-      const keys = form.getFieldValue('keys')
+      const keys = form.getFieldValue('keys');
       // We need at least one passenger
       if (keys.length === 1) {
-        return
+        return;
       }
 
       // can use data-binding to set
       // @ts-ignore
       form.setFieldsValue({
         keys: keys.filter((key: any) => key !== k)
-      })
-    }
+      });
+    };
 
     add = () => {
-      const { form } = this.props
+      const { form } = this.props;
       // can use data-binding to get
-      const keys = form.getFieldValue('keys')
-      const nextKeys = keys.concat(keys.length)
+      const keys = form.getFieldValue('keys');
+      const nextKeys = keys.concat(keys.length);
       // can use data-binding to set
       // important! notify form to detect changes
       form.setFieldsValue({
         keys: nextKeys
-      })
-    }
+      });
+    };
 
     handleSubmit = (e: any) => {
-      e.preventDefault()
+      e.preventDefault();
       this.props.form.validateFields((err: any, values: any) => {
         if (!err) {
-          console.log('Received values of form: ', values)
+          console.log('Received values of form: ', values);
         }
-      })
-    }
+      });
+    };
 
     // choose book or dvd dropdown
     handleSelectChange = (value: any) => {
-      console.log(value)
+      console.log(value);
       // this.props.form.setFieldsValue({
       //   note: `Hi, ${value === 'male' ? 'man' : 'lady'}!`
       // })
-    }
+    };
 
     render() {
-      const { visible, onCancel, onCreate } = this.props
+      const { visible, onCancel, onCreate } = this.props;
       // const { getFieldDecorator } = form
       // const formItemLayout = {
       //   labelCol: {
@@ -81,12 +81,12 @@ const AddBookForm = Form.create()(
               .toISOString()
               .slice(0, 10)
               .replace(/-/g, '/')
-          )
+          );
         }
-      }
+      };
 
       //////////////////////////////////////////////////////////////////////////////////
-      const { getFieldDecorator, getFieldValue } = this.props.form
+      const { getFieldDecorator, getFieldValue } = this.props.form;
       // @ts-ignore
       const formItemLayout = {
         labelCol: {
@@ -97,15 +97,15 @@ const AddBookForm = Form.create()(
           xs: { span: 24 },
           sm: { span: 20 }
         }
-      }
+      };
       const formItemLayoutWithOutLabel = {
         wrapperCol: {
           xs: { span: 24, offset: 0 },
           sm: { span: 20, offset: 4 }
         }
-      }
-      getFieldDecorator('keys', { initialValue: [] })
-      const keys = getFieldValue('keys')
+      };
+      getFieldDecorator('keys', { initialValue: [] });
+      const keys = getFieldValue('keys');
       const formItems = keys.map((k: any, index: any) => {
         return (
           <FormItem
@@ -134,10 +134,10 @@ const AddBookForm = Form.create()(
               />
             ) : null}
           </FormItem>
-        )
-      })
+        );
+      });
 
-      const dateFormat = 'YYYY/MM/DD'
+      const dateFormat = 'YYYY/MM/DD';
 
       return (
         <Modal
@@ -235,9 +235,9 @@ const AddBookForm = Form.create()(
             {/*</FormItem>*/}
           </Form>
         </Modal>
-      )
+      );
     }
   }
-)
+);
 
-export default AddBookForm
+export default AddBookForm;

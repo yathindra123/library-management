@@ -1,21 +1,21 @@
-import React, { Component } from 'react'
-import { Modal, Form, Input, DatePicker } from 'antd'
+import React, { Component } from 'react';
+import { Modal, Form, Input, DatePicker } from 'antd';
 
-const FormItem = Form.Item
+const FormItem = Form.Item;
 
 interface Props {
-  visible: any
-  onCancel: any
-  onCreate: any
-  form: any
-  borrowingItem: any
+  visible: any;
+  onCancel: any;
+  onCreate: any;
+  form: any;
+  borrowingItem: any;
 }
 
 const BorrowItemForm = Form.create()(
   class extends Component<Props> {
     render() {
-      const { visible, onCancel, onCreate, form, borrowingItem } = this.props
-      const { getFieldDecorator } = form
+      const { visible, onCancel, onCreate, form, borrowingItem } = this.props;
+      const { getFieldDecorator } = form;
       const formItemLayout = {
         labelCol: {
           xs: { span: 24 },
@@ -25,12 +25,12 @@ const BorrowItemForm = Form.create()(
           xs: { span: 24 },
           sm: { span: 16 }
         }
-      }
+      };
       const config = {
         rules: [{ type: 'object', required: true, message: 'Please select time!' }]
-      }
+      };
 
-      const isbn = borrowingItem.key
+      const isbn = borrowingItem.key;
 
       return (
         <Modal
@@ -73,9 +73,9 @@ const BorrowItemForm = Form.create()(
             {/*</FormItem>*/}
           </Form>
         </Modal>
-      )
+      );
     }
   }
-)
+);
 
-export default BorrowItemForm
+export default BorrowItemForm;

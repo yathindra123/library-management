@@ -1,17 +1,17 @@
-import { Layout, Menu, Icon } from 'antd'
-import React, { Component } from 'react'
+import { Layout, Menu, Icon } from 'antd';
+import React, { Component } from 'react';
 
-const { Sider } = Layout
+const { Sider } = Layout;
 // const SubMenu = Menu.SubMenu
 
 export class LeftSider extends Component {
   state = {
     collapsed: false
-  }
+  };
 
   onCollapse = (collapsed: any) => {
-    this.setState({ collapsed })
-  }
+    this.setState({ collapsed });
+  };
 
   render() {
     return (
@@ -62,6 +62,6 @@ export class LeftSider extends Component {
           {/*</Menu.Item>*/}
         </Menu>
       </Sider>
-    )
+    );
   }
 }
