@@ -69,6 +69,54 @@ function addBookHandler(state: TypeBooksState, book: any): TypeBooksState {
 }
 
 function setBookHandler(state: TypeBooksState, bookList: any) {
+  // format data
+  let dateString = '';
+  bookList.map((item: any) => {
+    // publication date
+    if (item.publicationDate) {
+      const date = item.publicationDate;
+      dateString = `${date.year}-${date.month}-${date.day}`;
+      item.publicationDate = dateString;
+    }
+
+    // borrowed date
+    if (item.borrowedDate) {
+      const date = item.borrowedDate;
+      dateString = `${date.year}-${date.month}-${date.day}`;
+      item.borrowedDate = dateString;
+    }
+
+    // current reader
+    if (item.currentReader) {
+      const reader = item.currentReader;
+      item.currentReader = reader.name;
+    }
+
+    // if available languages attribute not in the object
+    if (!item.availLanguages) {
+      item.availLanguages = [];
+    }
+
+    // if available subtitles attribute not in the object
+    if (!item.availSubtitles) {
+      item.availSubtitles = [];
+    }
+
+    // if producer attribute not in the object
+    if (!item.producer) {
+      item.producer = '';
+    }
+
+    // current author
+    if (item.author) {
+      item.author = item.author.name;
+      item.authorId = item.author.id;
+    } else {
+      item.author = '';
+      item.authorId = '';
+    }
+  });
+
   state.books = bookList;
 
   return {

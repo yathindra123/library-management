@@ -113,7 +113,7 @@ class BooksTable extends Component<Props> {
   columns = [
     {
       title: 'ISBN',
-      dataIndex: 'key'
+      dataIndex: 'id'
     },
     {
       title: 'Title',
@@ -128,25 +128,21 @@ class BooksTable extends Component<Props> {
       dataIndex: 'author'
     },
     {
-      title: 'Publisher',
-      dataIndex: 'publisher'
+      title: 'Producer',
+      dataIndex: 'producer'
     },
     {
       title: 'Borrowed Date',
       dataIndex: 'borrowedDate'
     },
-    {
-      title: 'Type',
-      dataIndex: 'type'
-    },
-    {
-      title: 'Num of pages',
-      dataIndex: 'numOfPages'
-    },
-    {
-      title: 'Actors',
-      dataIndex: 'actors'
-    },
+    // {
+    //   title: 'Type',
+    //   dataIndex: 'type'
+    // },
+    // {
+    //   title: 'Num of pages',
+    //   dataIndex: 'numOfPages'
+    // },
     {
       title: 'Available languages',
       dataIndex: 'availLanguages',
@@ -181,7 +177,7 @@ class BooksTable extends Component<Props> {
     },
     {
       title: 'Person borrowed',
-      dataIndex: 'personBorrowed'
+      dataIndex: 'currentReader'
     },
     {
       title: 'Action',
@@ -232,15 +228,43 @@ class BooksTable extends Component<Props> {
   private borrowFormRef: any;
 
   componentDidMount() {
-    axios.get(`http://www.mocky.io/v2/5be796733000006e0058c29d`).then(res => {
-      this.props.action.setBooksList(res.data.items);
-      console.log('res1--------------------------');
-      this.setState({
-        data: this.props.books.books
+    fetch('http://localhost:9000/items', {
+      method: 'GET'
+    })
+      .then(response => response.json())
+      .then(data => {
+        console.log(data);
+      })
+      .catch(error => {
+        console.error(error);
+        console.log('errr');
       });
-      console.log(Array.from(this.props.books.temp));
-      console.log('res--------------------------');
-    });
+
+    // fetch('http://localhost:9000/items')
+    //   .then(response => response.json())
+    //   .then(data => {
+    //     console.log(data);
+    //   })
+    //   .catch(error => {
+    //     console.error(error);
+    //     console.log('errr');
+    //   });
+
+    // axios
+    //   .get(`http://localhost:9000/items`, {
+    //     headers: {
+    //       'Access-Control-Allow-Origin': '*',
+    //       'Access-Control-Allow-Methods': 'GET, POST, PUT, OPTIONS',
+    //       'Access-Control-Allow-Headers': 'Content-Type'
+    //     }
+    //   })
+    //   .then(res => {
+    //     console.log('res came');
+    //     this.props.action.setBooksList(res.data);
+    //     this.setState({
+    //       data: this.props.books
+    //     });
+    //   });
   }
 
   showAddModal = () => {
@@ -505,6 +529,9 @@ class BooksTable extends Component<Props> {
   };
 
   generateReport = () => {
+    console.log(this.props);
+    console.log(this.props.books);
+    console.log(this.state.data);
     const tempReportData: any[] = [];
     const tableData = this.state.data;
     const currentDate = getCurrentDate();
@@ -545,31 +572,8 @@ class BooksTable extends Component<Props> {
     this.setState({ selectedRowKeys });
   };
 
-  // public updateTable = (value: string) => {
-  //   const filteredItems: string[] = [];
-  //   this.dataSource.map((item: string) => {
-  //     if (item.toLowerCase().indexOf(value.toLowerCase()) !== -1) {
-  //       filteredItems.push(item);
-  //     }
-  //   });
-  //
-  //   this.filteredBooks = filteredItems;
-  //
-  //   const tempData: any[] = [];
-  //   this.data.filter((item: any) => {
-  //     this.filteredBooks.map(book => {
-  //       if (book === item.name) {
-  //         tempData.push(item);
-  //       }
-  //     });
-  //   });
-  //
-  //   this.setState({ filteredData: tempData });
-  // };
-
   public render() {
     const { selectedRowKeys } = this.state;
-    console.log(items);
     const rowSelection = {
       selectedRowKeys,
       onChange: this.onSelectChange
@@ -712,8 +716,8 @@ class BooksTable extends Component<Props> {
   }
 }
 
-const mapStateToProps = (state: Store) => ({
-  books: state.books
+const mapStateToProps = (store: Store) => ({
+  books: store.books.books
 });
 
 const mapDisptachToProps = (dispatch: Dispatch) => ({
@@ -723,6 +727,7 @@ const mapDisptachToProps = (dispatch: Dispatch) => ({
 export default connect(
   mapStateToProps,
   mapDisptachToProps
+  // @ts-ignore
 )(BooksTable);
 
 // export default BooksTable
