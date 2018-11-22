@@ -12,10 +12,13 @@ const { Header, Content, Footer } = Layout;
 
 import Login from '../../components/login';
 import BooksTable from 'src/components/books-table';
+import MembersTable from 'src/components/members-table';
+import { TypeMembersState } from 'src/store/members';
 
 interface Props {
   action: TypeBooksAction;
   books: TypeBooksState;
+  members: TypeMembersState;
 }
 
 const content = (
@@ -59,6 +62,7 @@ class Home extends Component<Props> {
                 <Route exact={true} path="/abc" component={Routes.Counter} />
                 <Route exact={true} path="/login" component={Login} />
                 <Route exact={true} path="/books" component={BooksTable} />
+                <Route exact={true} path="/members" component={MembersTable} />
                 <Route render={Routes.NotFoundRedirectToRoot} />
               </Switch>
             </Content>

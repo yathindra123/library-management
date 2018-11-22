@@ -31,7 +31,7 @@ const BorrowItemForm = Form.create()(
       };
 
       const isbn = borrowingItem.key;
-
+      console.log(this.props.borrowingItem);
       return (
         <Modal
           visible={visible}
@@ -43,9 +43,14 @@ const BorrowItemForm = Form.create()(
           <Form layout="vertical">
             <FormItem label="Isbn">
               {getFieldDecorator('isbn', {
-                rules: [{ required: true, message: 'Please the isbn' }],
+                rules: [{ required: true, message: 'Please enter the isbn' }],
                 initialValue: isbn
-              })(<Input />)}
+              })(
+                <Input
+                  value={this.props.borrowingItem.isbn}
+                  placeholder={this.props.borrowingItem.isbn}
+                />
+              )}
             </FormItem>
             <FormItem label="Borrower">
               {getFieldDecorator('borrowerId', {

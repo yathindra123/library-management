@@ -85,7 +85,7 @@ function calculateDebt(dateDiff: any) {
   return debt;
 }
 class BooksTable extends Component<Props> {
-  // data: any = Array.from(this.props.books.temp);
+  // data: any = Array.from(this.props.members.temp);
 
   // create a new array from for searching purpose
   public state = {
@@ -125,7 +125,17 @@ class BooksTable extends Component<Props> {
     },
     {
       title: 'Author',
-      dataIndex: 'author'
+      dataIndex: 'author',
+      key: 'author',
+      render: (author: any) => (
+        <span>
+          {author.map((guy: any) => (
+            <Tag color="blue" key={guy.id}>
+              {guy.name}
+            </Tag>
+          ))}
+        </span>
+      )
     },
     {
       title: 'Producer',
@@ -228,17 +238,17 @@ class BooksTable extends Component<Props> {
   private borrowFormRef: any;
 
   componentDidMount() {
-    fetch('http://localhost:9000/items', {
-      method: 'GET'
-    })
-      .then(response => response.json())
-      .then(data => {
-        console.log(data);
-      })
-      .catch(error => {
-        console.error(error);
-        console.log('errr');
-      });
+    // fetch('http://localhost:9000/items', {
+    //   method: 'GET'
+    // })
+    //   .then(response => response.json())
+    //   .then(data => {
+    //     console.log(data);
+    //   })
+    //   .catch(error => {
+    //     console.error(error);
+    //     console.log('errr');
+    //   });
 
     // fetch('http://localhost:9000/items')
     //   .then(response => response.json())
@@ -250,21 +260,12 @@ class BooksTable extends Component<Props> {
     //     console.log('errr');
     //   });
 
-    // axios
-    //   .get(`http://localhost:9000/items`, {
-    //     headers: {
-    //       'Access-Control-Allow-Origin': '*',
-    //       'Access-Control-Allow-Methods': 'GET, POST, PUT, OPTIONS',
-    //       'Access-Control-Allow-Headers': 'Content-Type'
-    //     }
-    //   })
-    //   .then(res => {
-    //     console.log('res came');
-    //     this.props.action.setBooksList(res.data);
-    //     this.setState({
-    //       data: this.props.books
-    //     });
-    //   });
+    axios.get(`http://localhost:9000/items`).then(res => {
+      this.props.action.setBooksList(res.data);
+      this.setState({
+        data: this.props.books
+      });
+    });
   }
 
   showAddModal = () => {
@@ -291,9 +292,6 @@ class BooksTable extends Component<Props> {
   };
 
   showBorrowModal = () => {
-    console.log('yayy books below');
-    // console.log(this.state.temp);
-    console.log('yayy books above');
     this.setState({
       visibleBorrow: true
     });
@@ -348,19 +346,52 @@ class BooksTable extends Component<Props> {
         return;
       }
 
-      const actors = values.actors.split(',');
-      const languages = values.languages.split(',');
-      const subtitles = values.subtitles.split(',');
+      let actorNames: string[] = [];
+      let languages: string[] = [];
+      let subtitles: string[] = [];
 
-      const publicationDate = new Date(values.publicationDate)
+      if (values.actors) {
+        actorNames = values.actors.split(',');
+      }
+      if (values.languages) {
+        languages = values.languages.split(',');
+      }
+      if (values.subtitles) {
+        subtitles = values.subtitles.split(',');
+      }
+
+      const publicationDateTemp = new Date(values.publicationDate)
         .toISOString()
         .slice(0, 10)
         .replace(/-/g, '-');
 
-      const borrowedDate = new Date(values.borrowedDate)
+      const publicationDate: any[] = publicationDateTemp.split('-');
+
+      const borrowedDateTemp = new Date(values.borrowedDate)
         .toISOString()
         .slice(0, 10)
         .replace(/-/g, '-');
+
+      const borrowedDate: any[] = borrowedDateTemp.split('-');
+
+      const authorNames = values.names;
+
+      const authors: any[] = [];
+      const actors: any[] = [];
+
+      authorNames.map((name: any) => {
+        authors.push({
+          id: null,
+          name
+        });
+      });
+
+      actorNames.map((name: any) => {
+        actors.push({
+          id: null,
+          name
+        });
+      });
 
       const book = {
         key: values.isbn,
@@ -368,13 +399,13 @@ class BooksTable extends Component<Props> {
         sector: values.sector,
         author: values.names,
         publisher: values.publisher,
-        borrowedDate,
+        borrowedDate: borrowedDateTemp,
         type: values.type,
         numOfPages: values.numOfPages,
         actors,
         availLanguages: languages,
         availSubtitles: subtitles,
-        publicationDate,
+        publicationDate: publicationDateTemp,
         personBorrowed: values.borrower
       };
 
@@ -386,6 +417,77 @@ class BooksTable extends Component<Props> {
       const itemsList = items.items;
       form.resetFields();
       this.setState({ visibleAdd: false, filteredData: itemsList });
+
+      /*
+      * send new item to the api
+      * */
+
+      if (values.type === 'book') {
+        axios
+          .post('http://localhost:9000/items/savebook', {
+            id: null,
+            isbn: book.key,
+            title: book.title,
+            sector: book.sector,
+            publicationDate: {
+              year: publicationDate[0],
+              month: publicationDate[1],
+              day: publicationDate[2]
+            },
+            borrowedDate: {
+              year: borrowedDate[0],
+              month: borrowedDate[1],
+              day: borrowedDate[2]
+            },
+            currentReader: {
+              id: null,
+              name: 'bro',
+              mobile: '2324234234',
+              email: 'sjk@wfe.swe'
+            },
+            author: authors
+          })
+          .then(response => {
+            console.log(response);
+          })
+          .catch(error => {
+            console.log(error);
+          });
+      } else {
+        axios
+          .post('http://localhost:9000/items/savedvd', {
+            id: null,
+            isbn: book.key,
+            title: book.title,
+            sector: book.sector,
+            publicationDate: {
+              year: publicationDate[0],
+              month: publicationDate[1],
+              day: publicationDate[2]
+            },
+            borrowedDate: {
+              year: borrowedDate[0],
+              month: borrowedDate[1],
+              day: borrowedDate[2]
+            },
+            currentReader: {
+              id: null,
+              name: 'bro',
+              mobile: '2324234234',
+              email: 'sjk@wfe.swe'
+            },
+            availLanguages: languages,
+            availSubtitles: subtitles,
+            producer: 'I am the producer',
+            actors
+          })
+          .then(response => {
+            console.log(response);
+          })
+          .catch(error => {
+            console.log(error);
+          });
+      }
     });
   };
 
@@ -430,6 +532,19 @@ class BooksTable extends Component<Props> {
         }
       });
 
+      console.log('iTEmz');
+      console.log(JSON.stringify(this.state.borrowingItem));
+      // @ts-ignore
+      axios.post(`http://localhost:9000/borrow/${this.state.borrowingItem.id}/${borrowingDate}/${values.borrowerId}`)
+        .then(res => {
+          this.props.action.setBooksList(res.data);
+          // this.setState({
+          //   data: this.props.members
+          // });
+        });
+
+      // @ts-ignore
+      console.log(this.state.borrowingItem.id);
       form.resetFields();
       this.setState({ visibleBorrow: false });
     });
@@ -440,10 +555,13 @@ class BooksTable extends Component<Props> {
     setTimeout(() => {
       console.log('please wait 1 sec', this.state.returningItem);
       // @ts-ignore
-      if (!this.state.returningItem.personBorrowed) {
+      if (!this.state.returningItem.currentReader) {
         message.error('This item does not borrowed to return');
         return;
       }
+      console.log('rett');
+      console.log(this.state.returningItem);
+      console.log('rett');
       const returningDate = getCurrentDate();
 
       // check if due are there to pay
@@ -478,6 +596,14 @@ class BooksTable extends Component<Props> {
         }
       });
 
+      // @ts-ignore
+      axios.post(`http://localhost:9000/returnBook/${this.state.returningItem.id}`).then(res => {
+        this.props.action.setBooksList(res.data);
+        // this.setState({
+        //   data: this.props.members
+        // });
+      });
+
       this.setState({ visibleBorrow: false });
     }, 1000);
   };
@@ -485,6 +611,7 @@ class BooksTable extends Component<Props> {
   // when confirm the delete confirmation
   confirm = (e: any) => {
     console.log(e);
+    console.log(this.state.selectedRowKeys);
     const hasSelected = this.state.selectedRowKeys.length > 0;
     if (hasSelected) {
       items.items.map((item, index) => {
@@ -601,7 +728,7 @@ class BooksTable extends Component<Props> {
       let booksCount = 0;
       let dvdCount = 0;
 
-      // find books and dvds count
+      // find members and dvds count
       for (const item of items.items) {
         if (item.type === 'book') {
           booksCount++;
@@ -610,10 +737,10 @@ class BooksTable extends Component<Props> {
         }
       }
 
-      // check books and dvds for maximum possible count
+      // check members and dvds for maximum possible count
       if (booksCount > maximumPossibleBooks) {
         message.error(`${maximumPossibleBooks} items of books limit has been exceeded`);
-        message.error('Try again by deleting unwanted books');
+        message.error('Try again by deleting unwanted members');
         return;
       } else if (dvdCount > maximumPossibleDVDs) {
         message.error(`${maximumPossibleDVDs} items of DVDs limit has been exceeded`);
@@ -649,7 +776,7 @@ class BooksTable extends Component<Props> {
           {/*/>*/}
 
           {/*add modal*/}
-          {/*<h1>{this.props.books.temp ? JSON.stringify(this.props.books.temp) : 'sdfio'}</h1>*/}
+          {/*<h1>{this.props.members.temp ? JSON.stringify(this.props.members.temp) : 'sdfio'}</h1>*/}
           <div>
             <AddBookForm
               wrappedComponentRef={this.saveFormRef}

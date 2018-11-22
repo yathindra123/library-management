@@ -9,7 +9,7 @@ const actionCreator = actionCreatorFactory('booksList');
 // }
 
 // export interface ITaskState {
-//   books: Book[];
+//   members: Book[];
 // }
 
 export interface Book {
@@ -84,6 +84,10 @@ function setBookHandler(state: TypeBooksState, bookList: any) {
       const date = item.borrowedDate;
       dateString = `${date.year}-${date.month}-${date.day}`;
       item.borrowedDate = dateString;
+
+      if (item.borrowedDate === '0-0-0') {
+        item.borrowedDate = '';
+      }
     }
 
     // current reader
@@ -108,15 +112,11 @@ function setBookHandler(state: TypeBooksState, bookList: any) {
     }
 
     // current author
-    if (item.author) {
-      item.author = item.author.name;
-      item.authorId = item.author.id;
-    } else {
-      item.author = '';
-      item.authorId = '';
+    if (!item.author) {
+      item.author = [];
+      item.authorId = [];
     }
   });
-
   state.books = bookList;
 
   return {

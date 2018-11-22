@@ -14,6 +14,10 @@ interface Props {
 
 const AddBookForm = Form.create()(
   class extends Component<Props> {
+    public state = {
+      addItemType: 'book'
+    };
+
     remove = (k: any) => {
       const { form } = this.props;
       // can use data-binding to get
@@ -51,12 +55,11 @@ const AddBookForm = Form.create()(
       });
     };
 
-    // choose book or dvd dropdown
-    handleSelectChange = (value: any) => {
-      console.log(value);
-      // this.props.form.setFieldsValue({
-      //   note: `Hi, ${value === 'male' ? 'man' : 'lady'}!`
-      // })
+    // choose book or dvd
+    handleBookDvdChange = (e: any) => {
+      this.setState({
+        addItemType: e.target.value
+      });
     };
 
     render() {
@@ -85,7 +88,6 @@ const AddBookForm = Form.create()(
         }
       };
 
-      //////////////////////////////////////////////////////////////////////////////////
       const { getFieldDecorator, getFieldValue } = this.props.form;
       // @ts-ignore
       const formItemLayout = {
@@ -187,35 +189,61 @@ const AddBookForm = Form.create()(
               {getFieldDecorator('type', {
                 initialValue: 'book'
               })(
-                <Radio.Group>
+                <Radio.Group onChange={this.handleBookDvdChange}>
                   <Radio value="book">
                     <Icon type="book" /> Book
                   </Radio>
-                  <Radio value="private">
+                  <Radio value="dvd">
                     <Icon type="play-circle" /> DVD
                   </Radio>
                 </Radio.Group>
               )}
             </FormItem>
-            <FormItem label="Num of pages">{getFieldDecorator('numOfPages')(<Input />)}</FormItem>
+            {this.state.addItemType === 'book' ? (
+              <FormItem label="Num of pages">
+                {getFieldDecorator('numOfPages', {
+                  getValueFromEvent: (e: React.FormEvent<HTMLInputElement>) => {
+                    const val = Number(e.currentTarget.value);
+                    if (isNaN(val)) {
+                      return Number(this.props.form.getFieldValue('numOfPages'));
+                    } else {
+                      return val;
+                    }
+                  },
+                  rules: [
+                    { required: true, type: 'number', message: 'Please enter the number of pages' }
+                  ]
+                })(<Input />)}
+              </FormItem>
+            ) : null}
 
-            <FormItem label="Actors">
-              {getFieldDecorator('actors', {
-                rules: [{ required: true, message: 'Please enter the actors(comma separated)!' }]
-              })(<Input />)}
-            </FormItem>
+            {this.state.addItemType === 'dvd' ? (
+              <FormItem label="Actors">
+                {getFieldDecorator('actors', {
+                  rules: [{ required: true, message: 'Please enter the actors(comma separated)!' }]
+                })(<Input />)}
+              </FormItem>
+            ) : null}
 
-            <FormItem label="Languages">
-              {getFieldDecorator('languages', {
-                rules: [{ required: true, message: 'Please enter the languages(comma separated)!' }]
-              })(<Input />)}
-            </FormItem>
+            {this.state.addItemType === 'dvd' ? (
+              <FormItem label="Languages">
+                {getFieldDecorator('languages', {
+                  rules: [
+                    { required: true, message: 'Please enter the languages(comma separated)!' }
+                  ]
+                })(<Input />)}
+              </FormItem>
+            ) : null}
 
-            <FormItem label="Subtitles">
-              {getFieldDecorator('subtitles', {
-                rules: [{ required: true, message: 'Please enter the subtitles(comma separated)!' }]
-              })(<Input />)}
-            </FormItem>
+            {this.state.addItemType === 'dvd' ? (
+              <FormItem label="Subtitles">
+                {getFieldDecorator('subtitles', {
+                  rules: [
+                    { required: true, message: 'Please enter the subtitles(comma separated)!' }
+                  ]
+                })(<Input />)}
+              </FormItem>
+            ) : null}
 
             <h4>Publication Date</h4>
             <FormItem {...formItemLayout} label="">
@@ -229,10 +257,6 @@ const AddBookForm = Form.create()(
                 rules: [{ required: true, message: 'Please enter the subtitles(comma separated)!' }]
               })(<Input />)}
             </FormItem>
-
-            {/*<FormItem {...formItemLayout} label="TimePicker">*/}
-            {/*{getFieldDecorator('time-picker', config)(<TimePicker />)}*/}
-            {/*</FormItem>*/}
           </Form>
         </Modal>
       );
