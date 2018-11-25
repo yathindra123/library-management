@@ -1,5 +1,6 @@
 import { actionCreatorFactory } from 'typescript-fsa';
 import { reducerWithInitialState } from 'typescript-fsa-reducers';
+import { ItemType } from 'src/enums/item';
 const actionCreator = actionCreatorFactory('booksList');
 
 // export class Book {
@@ -20,12 +21,10 @@ export interface Book {
 
 export interface TypeBooksState {
   books: Book[];
-  temp: any;
 }
 
 export const booksInitialState: TypeBooksState = {
-  books: [],
-  temp: []
+  books: []
 };
 
 export const booksAction = {
@@ -105,10 +104,10 @@ function setBookHandler(state: TypeBooksState, bookList: any) {
     if (!item.availSubtitles) {
       item.availSubtitles = [];
       // should be a book
-      item.type = 'BOOK';
+      item.type = ItemType.BOOK;
     } else {
       // should be a dvd
-      item.type = 'DVD';
+      item.type = ItemType.DVD;
     }
 
     // if producer attribute not in the object

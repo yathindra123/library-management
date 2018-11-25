@@ -12,6 +12,7 @@ import BorrowItemForm from 'src/components/borrow-item';
 import items from '../../../mocks/items.json';
 import ReturnItemForm from 'src/components/return-item';
 import axios from 'axios';
+import { ItemType } from 'src/enums/item';
 
 interface Props {
   action: TypeBooksAction;
@@ -354,11 +355,6 @@ class BooksTable extends Component<Props> {
         personBorrowed: values.borrower
       };
 
-      items.items.push(book);
-      // this.setState(() => {
-      //   data: this.state.data.push(book);
-      // });
-
       const itemsList = items.items;
       form.resetFields();
       this.setState({ visibleAdd: false, filteredData: itemsList });
@@ -366,8 +362,7 @@ class BooksTable extends Component<Props> {
       /*
       * send new item to the api
       * */
-
-      if (values.type === 'book') {
+      if (values.type === ItemType.BOOK) {
         axios
           .post('http://localhost:9000/items/savebook', {
             id: null,
@@ -507,7 +502,7 @@ class BooksTable extends Component<Props> {
         returningDate.toString()
       );
       // @ts-ignore
-      if (this.state.returningItem.type === 'BOOK') {
+      if (this.state.returningItem.type === ItemType.BOOK) {
         if (dateDifference > 7) {
           message.error('There is a debt to pay of ' + calculateDebt(dateDifference));
         } else {
@@ -552,8 +547,7 @@ class BooksTable extends Component<Props> {
 
   // when confirm the delete confirmation
   confirm = (record: any) => {
-    console.log(record);
-    if (record.type === 'DVD') {
+    if (record.type === ItemType.DVD) {
       axios
         .delete(`http://localhost:9000/items/dvd/${record.id}`)
         .then(res => {
@@ -566,7 +560,7 @@ class BooksTable extends Component<Props> {
           console.log(err);
           message.error('Error in deleting');
         });
-    } else if (record.type === 'BOOK') {
+    } else if (record.type === ItemType.BOOK) {
       axios
         .delete(`http://localhost:9000/items/book/${record.id}`)
         .then(res => {
@@ -580,27 +574,6 @@ class BooksTable extends Component<Props> {
           message.error('Error in deleting');
         });
     }
-    // console.log(this.state.selectedRowKeys);
-    // const hasSelected = this.state.selectedRowKeys.length > 0;
-    // if (hasSelected) {
-    //   items.items.map((item, index) => {
-    //     this.state.selectedRowKeys.map(isbn => {
-    //       if (item.key === isbn) {
-    //         console.log('index : ', index, ' item: ', item);
-    //         // delete items.items[index]
-    //         items.items.splice(index, 1);
-    //         console.log(items.items);
-    //         this.setState({ filteredData: items.items });
-    //       }
-    //     });
-    //   });
-    // delete items.items[0]
-
-    // if (true) {
-    //   message.success('Successfully deleted');
-    // } else {
-    //   message.error('Please pick items to delete');
-    // }
   };
 
   // when cancel the delete confirmation
