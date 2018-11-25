@@ -41,17 +41,17 @@ const BorrowItemForm = Form.create()(
           onOk={onCreate}
         >
           <Form layout="vertical">
-            <FormItem label="Isbn">
-              {getFieldDecorator('isbn', {
-                rules: [{ required: true, message: 'Please enter the isbn' }],
-                initialValue: isbn
-              })(
-                <Input
-                  value={this.props.borrowingItem.isbn}
-                  placeholder={this.props.borrowingItem.isbn}
-                />
-              )}
-            </FormItem>
+            {/*<FormItem label="Isbn">*/}
+            {/*{getFieldDecorator('isbn', {*/}
+            {/*rules: [{ required: true, message: 'Please enter the isbn' }],*/}
+            {/*initialValue: isbn*/}
+            {/*})(*/}
+            {/*<Input*/}
+            {/*value={this.props.borrowingItem.isbn}*/}
+            {/*placeholder={this.props.borrowingItem.isbn}*/}
+            {/*/>*/}
+            {/*)}*/}
+            {/*</FormItem>*/}
             <FormItem label="Borrower">
               {getFieldDecorator('borrowerId', {
                 rules: [{ required: true, message: 'Please enter the details of the borrower' }]

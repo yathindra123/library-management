@@ -1,5 +1,6 @@
 import { Layout, Menu, Icon } from 'antd';
 import React, { Component } from 'react';
+import { Link } from 'react-router-dom';
 
 const { Sider } = Layout;
 
@@ -23,16 +24,16 @@ export class LeftSider extends Component {
         <div className="logo" />
         <Menu theme="dark" /*defaultSelectedKeys={['1']}*/ mode="inline">
           <Menu.Item key="1">
-            <a href="/">
+            <Link to="/">
               <Icon type="book" theme="outlined" />
               <span>Items Manager</span>
-            </a>
+            </Link>
           </Menu.Item>
           <Menu.Item key="2">
-            <a href="/members">
+            <Link to="/members">
               <Icon type="book" theme="outlined" />
               <span>Members Manager</span>
-            </a>
+            </Link>
           </Menu.Item>
         </Menu>
       </Sider>

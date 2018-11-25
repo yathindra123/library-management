@@ -6,7 +6,6 @@ import { bindActionCreators, Dispatch } from 'redux';
 import { connect } from 'react-redux';
 import AddBookForm from 'src/components/books-table/add-item-modal';
 import DeleteBook from 'src/components/books-table/delete-item-modal';
-import EditBookForm from 'src/components/books-table/edit-item-modal';
 import BorrowItemForm from 'src/components/borrow-item';
 // import jsPDF from 'jspdf'
 // import mocks
@@ -93,13 +92,12 @@ class BooksTable extends Component<Props> {
     data: [],
     loading: false,
     visibleAdd: false,
-    visibleEdit: false,
     visibleBorrow: false,
     visibleReturn: false,
     filteredData: [],
-    editableData: {},
     borrowingItem: {},
-    returningItem: {}
+    returningItem: {},
+    deletingItem: {}
   };
 
   dataRender: any = Object.assign([], this.state.data);
@@ -219,14 +217,15 @@ class BooksTable extends Component<Props> {
               this.setState({
                 returningItem: record
               });
-              // console.log(this.state.visibleAdd)
-              // currentBorrowReadyItem = record
+
               this.showReturnModal();
               this.handleReturn();
             }}
           >
             Return
           </Button>
+          <Divider type="vertical" />
+          <DeleteBook confirm={() => this.confirm(record)} cancel={this.cancel} />
         </span>
       )
     }
@@ -234,32 +233,9 @@ class BooksTable extends Component<Props> {
 
   private addFormRef: any;
   // @ts-ignore
-  private editFormRef: any;
   private borrowFormRef: any;
 
   componentDidMount() {
-    // fetch('http://localhost:9000/items', {
-    //   method: 'GET'
-    // })
-    //   .then(response => response.json())
-    //   .then(data => {
-    //     console.log(data);
-    //   })
-    //   .catch(error => {
-    //     console.error(error);
-    //     console.log('errr');
-    //   });
-
-    // fetch('http://localhost:9000/items')
-    //   .then(response => response.json())
-    //   .then(data => {
-    //     console.log(data);
-    //   })
-    //   .catch(error => {
-    //     console.error(error);
-    //     console.log('errr');
-    //   });
-
     axios.get(`http://localhost:9000/items`).then(res => {
       this.props.action.setBooksList(res.data);
       this.setState({
@@ -271,23 +247,6 @@ class BooksTable extends Component<Props> {
   showAddModal = () => {
     this.setState({
       visibleAdd: true
-    });
-  };
-
-  showEditModal = () => {
-    message.info('Not implemented yet');
-    let tempItem = {};
-    // get item by isbn
-    items.items.map((item: any) => {
-      // console.log('KY ', item.key, ' N ', this.state.selectedRowKeys[0])
-      if (item.key === this.state.selectedRowKeys[0]) {
-        tempItem = item;
-        // message.info('Not implemented yet')
-      }
-    });
-    this.setState({
-      visibleEdit: true,
-      editableData: tempItem
     });
   };
 
@@ -317,24 +276,10 @@ class BooksTable extends Component<Props> {
     });
   };
 
-  handleCancelEditModal = (e: any) => {
-    console.log(e);
-    this.setState({
-      visibleEdit: false
-    });
-  };
-
   handleCancelBorrowModal = (e: any) => {
     console.log(e);
     this.setState({
       visibleBorrow: false
-    });
-  };
-
-  handleCancelReturnModal = (e: any) => {
-    console.log(e);
-    this.setState({
-      visibleReturn: false
     });
   };
 
@@ -426,7 +371,7 @@ class BooksTable extends Component<Props> {
         axios
           .post('http://localhost:9000/items/savebook', {
             id: null,
-            isbn: book.key,
+            isbn: values.isbn,
             title: book.title,
             sector: book.sector,
             publicationDate: {
@@ -440,10 +385,10 @@ class BooksTable extends Component<Props> {
               day: borrowedDate[2]
             },
             currentReader: {
-              id: null,
-              name: 'bro',
-              mobile: '2324234234',
-              email: 'sjk@wfe.swe'
+              id: values.borrower,
+              name: '',
+              mobile: '',
+              email: ''
             },
             author: authors
           })
@@ -457,7 +402,7 @@ class BooksTable extends Component<Props> {
         axios
           .post('http://localhost:9000/items/savedvd', {
             id: null,
-            isbn: book.key,
+            isbn: values.isbn,
             title: book.title,
             sector: book.sector,
             publicationDate: {
@@ -471,10 +416,10 @@ class BooksTable extends Component<Props> {
               day: borrowedDate[2]
             },
             currentReader: {
-              id: null,
-              name: 'bro',
-              mobile: '2324234234',
-              email: 'sjk@wfe.swe'
+              id: values.borrower,
+              name: '',
+              mobile: '',
+              email: ''
             },
             availLanguages: languages,
             availSubtitles: subtitles,
@@ -491,33 +436,12 @@ class BooksTable extends Component<Props> {
     });
   };
 
-  handleUpdate = () => {
-    const form = this.editFormRef.props.form;
-    form.validateFields((err: any, values: any) => {
-      if (err) {
-        return;
-      }
-
-      const hasSelectedMoreOrLessThanOne = this.state.selectedRowKeys.length !== 1;
-
-      if (hasSelectedMoreOrLessThanOne) {
-        message.error('Please pick only one book to update');
-        return;
-      }
-
-      console.log('Updated values of form: ', values);
-      form.resetFields();
-      this.setState({ visibleAdd: false });
-    });
-  };
-
   handleBorrow = () => {
     const form = this.borrowFormRef.props.form;
     form.validateFields((err: any, values: any) => {
       if (err) {
         return;
       }
-
       const borrowingDate = new Date(values.borrowingDate)
         .toISOString()
         .slice(0, 10)
@@ -532,21 +456,37 @@ class BooksTable extends Component<Props> {
         }
       });
 
-      console.log('iTEmz');
-      console.log(JSON.stringify(this.state.borrowingItem));
-      // @ts-ignore
-      axios.post(`http://localhost:9000/borrow/${this.state.borrowingItem.id}/${borrowingDate}/${values.borrowerId}`)
-        .then(res => {
-          this.props.action.setBooksList(res.data);
-          // this.setState({
-          //   data: this.props.members
-          // });
-        });
+      if (this.state.borrowingItem.type === 'BOOK'){
+        // @ts-ignore
+        axios
+          .post(
+            `http://localhost:9000/borrowBook/${this.state.borrowingItem.id}/${borrowingDate}/${values.borrowerId}`
+          )
+          .then(res => {
+            this.props.action.setBooksList(res.data);
+            // this.setState({
+            //   data: this.props.members
+            // });
+          });
 
-      // @ts-ignore
-      console.log(this.state.borrowingItem.id);
-      form.resetFields();
-      this.setState({ visibleBorrow: false });
+        // @ts-ignore
+        form.resetFields();
+        this.setState({ visibleBorrow: false });
+      } else if (this.state.borrowingItem.type === 'DVD') {
+        // @ts-ignore
+        axios
+          .post(`http://localhost:9000/borrowDvd/${this.state.borrowingItem.id}/${borrowingDate}/${values.borrowerId}`)
+          .then(res => {
+            this.props.action.setBooksList(res.data);
+            // this.setState({
+            //   data: this.props.members
+            // });
+          });
+
+        // @ts-ignore
+        form.resetFields();
+        this.setState({ visibleBorrow: false });
+      }
     });
   };
 
@@ -609,28 +549,42 @@ class BooksTable extends Component<Props> {
   };
 
   // when confirm the delete confirmation
-  confirm = (e: any) => {
-    console.log(e);
-    console.log(this.state.selectedRowKeys);
-    const hasSelected = this.state.selectedRowKeys.length > 0;
-    if (hasSelected) {
-      items.items.map((item, index) => {
-        this.state.selectedRowKeys.map(isbn => {
-          if (item.key === isbn) {
-            console.log('index : ', index, ' item: ', item);
-            // delete items.items[index]
-            items.items.splice(index, 1);
-            console.log(items.items);
-            this.setState({ filteredData: items.items });
-          }
-        });
-      });
-      // delete items.items[0]
+  confirm = (record: any) => {
+    console.log(record);
+    // console.log(this.state.selectedRowKeys);
+    // const hasSelected = this.state.selectedRowKeys.length > 0;
+    // if (hasSelected) {
+    //   items.items.map((item, index) => {
+    //     this.state.selectedRowKeys.map(isbn => {
+    //       if (item.key === isbn) {
+    //         console.log('index : ', index, ' item: ', item);
+    //         // delete items.items[index]
+    //         items.items.splice(index, 1);
+    //         console.log(items.items);
+    //         this.setState({ filteredData: items.items });
+    //       }
+    //     });
+    //   });
+    // delete items.items[0]
 
-      message.success('Successfully deleted');
-    } else {
-      message.error('Please pick items to delete');
-    }
+    axios
+      .delete(`http://localhost:9000/items/book/${record.id}`)
+      .then(res => {
+        message.success('Successfully deleted');
+        // this.setState({
+        //   data: this.props.members
+        // });
+      })
+      .catch(err => {
+        console.log(err);
+        message.error('Error in deleting');
+      });
+
+    // if (true) {
+    //   message.success('Successfully deleted');
+    // } else {
+    //   message.error('Please pick items to delete');
+    // }
   };
 
   // when cancel the delete confirmation
@@ -641,10 +595,6 @@ class BooksTable extends Component<Props> {
 
   saveFormRef = (formRef: any) => {
     this.addFormRef = formRef;
-  };
-
-  updateFormRef = (formRef: any) => {
-    this.editFormRef = formRef;
   };
 
   borrowItemFormRef = (formRef: any) => {
@@ -704,11 +654,6 @@ class BooksTable extends Component<Props> {
     const rowSelection = {
       selectedRowKeys,
       onChange: this.onSelectChange
-    };
-
-    const handleEdit = () => {
-      this.showEditModal();
-      // this.props.action.add(['namez' + Math.ceil(Math.random() * 8), 'sth', 'someother'])
     };
 
     const handleAdd = () => {
@@ -787,16 +732,6 @@ class BooksTable extends Component<Props> {
           </div>
 
           <div>
-            <EditBookForm
-              wrappedComponentRef={this.updateFormRef}
-              visible={this.state.visibleEdit}
-              onCancel={this.handleCancelEditModal}
-              onCreate={this.handleUpdate}
-              editableData={this.state.editableData}
-            />
-          </div>
-
-          <div>
             <BorrowItemForm
               wrappedComponentRef={this.borrowItemFormRef}
               visible={this.state.visibleBorrow}
@@ -823,12 +758,6 @@ class BooksTable extends Component<Props> {
               onClick={this.generateReport}
             />
             <Button shape="circle" icon="plus" style={{ marginRight: '1em' }} onClick={handleAdd} />
-            <Button
-              onClick={handleEdit}
-              shape="circle"
-              icon="edit"
-              style={{ marginRight: '1em' }}
-            />
             <DeleteBook confirm={this.confirm} cancel={this.cancel} />
           </Col>
         </Row>

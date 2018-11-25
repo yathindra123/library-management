@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Table, Row, Layout, message, Col, Button } from 'antd';
+import { Table, Row, Layout, message, Col, Button, AutoComplete } from 'antd';
 import { Store } from 'src/store';
 import { bindActionCreators, Dispatch } from 'redux';
 import { connect } from 'react-redux';
@@ -136,6 +136,27 @@ class MembersTable extends Component<Props> {
     }
   };
 
+  // public updateTable = (value: string) => {
+  //   const filteredItems: string[] = [];
+  //   this.dataSource.map((item: string) => {
+  //     if (item.toLowerCase().indexOf(value.toLowerCase()) !== -1) {
+  //       filteredItems.push(item);
+  //     }
+  //   });
+  //
+  //   this.filteredBooks = filteredItems;
+  //
+  //   const tempData: any[] = [];
+  //   this.data.filter((item: any) => {
+  //     this.filteredBooks.map(book => {
+  //       if (book === item.name) {
+  //         tempData.push(item);
+  //       }
+  //     });
+  //   });
+  //
+  //   this.setState({ filteredData: tempData });
+  // };
   // when cancel the delete confirmation
   cancel = (e: any) => {
     console.log(e);
@@ -158,12 +179,37 @@ class MembersTable extends Component<Props> {
       onChange: this.onSelectChange
     };
 
+    // const dataSource = ['Burns Bay Road', 'Downing Street', 'Wall Street'];
+    // @ts-ignore
+    const dataSource = this.state.data.map(person => person.name);
+
     return (
       <Layout>
         <Row type="flex" justify="end" style={{ height: '5em' }}>
+          <AutoComplete
+            style={{ width: 200 }}
+            dataSource={dataSource}
+            placeholder="try to type `b`"
+            filterOption={(inputValue, option) =>
+              // @ts-ignore
+              option.props.children.toUpperCase().indexOf(inputValue.toUpperCase()) !== -1
+            }
+            onSelect={value => {
+              if (typeof value !== 'string') {
+                value = value.toString();
+              }
+              console.log('l', value);
+              // this will execute when an item is selected from the search list
+              // this.updateTable(value)
+            }}
+            onSearch={value => {
+              // this.updateTable(value)
+              console.log('s', value);
+            }}
+          />
           {/*<AutoComplete*/}
           {/*style={{ marginRight: '5em', width: 200, marginTop: 'auto', marginBottom: 'auto' }}*/}
-          {/*dataSource={dataSource}*/}
+          {/*dataSource={this.state.data}*/}
           {/*placeholder="Search by book name"*/}
           {/*filterOption={(inputValue, option) =>*/}
           {/*// @ts-ignore*/}
@@ -171,18 +217,16 @@ class MembersTable extends Component<Props> {
           {/*}*/}
           {/*onSelect={value => {*/}
           {/*if (typeof value !== 'string') {*/}
-          {/*value = value.toString()*/}
+          {/*value = value.toString();*/}
           {/*}*/}
           {/*// this will execute when an item is selected from the search list*/}
-          {/*this.updateTable(value)*/}
+          {/*this.updateTable(value);*/}
           {/*}}*/}
           {/*onSearch={value => {*/}
-          {/*this.updateTable(value)*/}
+          {/*this.updateTable(value);*/}
           {/*}}*/}
           {/*/>*/}
 
-          {/*add modal*/}
-          {/*<h1>{this.props.members.temp ? JSON.stringify(this.props.members.temp) : 'sdfio'}</h1>*/}
           <div>
             <AddMemberForm
               wrappedComponentRef={this.saveFormRef}

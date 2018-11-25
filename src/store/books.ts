@@ -104,6 +104,11 @@ function setBookHandler(state: TypeBooksState, bookList: any) {
     // if available subtitles attribute not in the object
     if (!item.availSubtitles) {
       item.availSubtitles = [];
+      // should be a book
+      item.type = 'BOOK';
+    } else {
+      // should be a dvd
+      item.type = 'DVD';
     }
 
     // if producer attribute not in the object

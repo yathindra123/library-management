@@ -252,7 +252,7 @@ const AddBookForm = Form.create()(
               )}
             </FormItem>
 
-            <FormItem label="Borrower">
+            <FormItem label="Borrower ID">
               {getFieldDecorator('borrower', {
                 rules: [{ required: true, message: 'Please enter the subtitles(comma separated)!' }]
               })(<Input />)}
