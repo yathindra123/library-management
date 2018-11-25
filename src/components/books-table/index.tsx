@@ -493,15 +493,11 @@ class BooksTable extends Component<Props> {
   handleReturn = () => {
     // doc.save('a4.pdf')
     setTimeout(() => {
-      console.log('please wait 1 sec', this.state.returningItem);
       // @ts-ignore
       if (!this.state.returningItem.currentReader) {
         message.error('This item does not borrowed to return');
         return;
       }
-      console.log('rett');
-      console.log(this.state.returningItem);
-      console.log('rett');
       const returningDate = getCurrentDate();
 
       // check if due are there to pay
@@ -510,39 +506,45 @@ class BooksTable extends Component<Props> {
         this.state.returningItem.borrowedDate,
         returningDate.toString()
       );
-
       // @ts-ignore
-      if (this.state.returningItem.type === 'book') {
+      if (this.state.returningItem.type === 'BOOK') {
         if (dateDifference > 7) {
           message.error('There is a debt to pay of ' + calculateDebt(dateDifference));
         } else {
           message.info('Successfully returned the book');
         }
+        // @ts-ignore
+        axios.post(`http://localhost:9000/returnBook/${this.state.returningItem.id}`).then(res => {
+          // this.props.action.setBooksList(res.data);
+          // this.setState({
+          //   data: this.props.members
+          // });
+        });
       } else {
         if (dateDifference > 3) {
           message.error('There is a debt to pay of ' + calculateDebt(dateDifference));
         } else {
           message.info('Successfully returned the book');
         }
+
+        // @ts-ignore
+        axios.post(`http://localhost:9000/returnDvd/${this.state.returningItem.id}`).then(res => {
+          // this.props.action.setBooksList(res.data);
+          // this.setState({
+          //   data: this.props.members
+          // });
+        });
       }
 
       // update json
-      items.items.map(item => {
-        // @ts-ignore
-        if (item.key === this.state.returningItem.key) {
-          // update record
-          item.borrowedDate = '';
-          item.personBorrowed = '';
-        }
-      });
-
-      // @ts-ignore
-      axios.post(`http://localhost:9000/returnBook/${this.state.returningItem.id}`).then(res => {
-        this.props.action.setBooksList(res.data);
-        // this.setState({
-        //   data: this.props.members
-        // });
-      });
+      // items.items.map(item => {
+      //   // @ts-ignore
+      //   if (item.key === this.state.returningItem.key) {
+      //     // update record
+      //     item.borrowedDate = '';
+      //     item.personBorrowed = '';
+      //   }
+      // });
 
       this.setState({ visibleBorrow: false });
     }, 1000);
@@ -551,6 +553,33 @@ class BooksTable extends Component<Props> {
   // when confirm the delete confirmation
   confirm = (record: any) => {
     console.log(record);
+    if (record.type === 'DVD') {
+      axios
+        .delete(`http://localhost:9000/items/dvd/${record.id}`)
+        .then(res => {
+          message.success('Successfully deleted');
+          // this.setState({
+          //   data: this.props.members
+          // });
+        })
+        .catch(err => {
+          console.log(err);
+          message.error('Error in deleting');
+        });
+    } else if (record.type === 'BOOK') {
+      axios
+        .delete(`http://localhost:9000/items/book/${record.id}`)
+        .then(res => {
+          message.success('Successfully deleted');
+          // this.setState({
+          //   data: this.props.members
+          // });
+        })
+        .catch(err => {
+          console.log(err);
+          message.error('Error in deleting');
+        });
+    }
     // console.log(this.state.selectedRowKeys);
     // const hasSelected = this.state.selectedRowKeys.length > 0;
     // if (hasSelected) {
@@ -566,19 +595,6 @@ class BooksTable extends Component<Props> {
     //     });
     //   });
     // delete items.items[0]
-
-    axios
-      .delete(`http://localhost:9000/items/book/${record.id}`)
-      .then(res => {
-        message.success('Successfully deleted');
-        // this.setState({
-        //   data: this.props.members
-        // });
-      })
-      .catch(err => {
-        console.log(err);
-        message.error('Error in deleting');
-      });
 
     // if (true) {
     //   message.success('Successfully deleted');
