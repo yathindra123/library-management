@@ -1,1 +1,2 @@
-// declare module '@react-pdf/renderer'
+// declare module 'jspdf-autotable';
+declare module 'jspdf';

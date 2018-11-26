@@ -7,7 +7,9 @@ import { connect } from 'react-redux';
 import AddBookForm from 'src/components/books-table/add-item-modal';
 import DeleteBook from 'src/components/books-table/delete-item-modal';
 import BorrowItemForm from 'src/components/borrow-item';
-// import jsPDF from 'jspdf'
+import jsPDF from 'jspdf';
+// import jsPDF from '@types/jspdf/index.d.ts';
+// declare var jspdf: any;
 // import mocks
 import items from '../../../mocks/items.json';
 import ReturnItemForm from 'src/components/return-item';
@@ -451,11 +453,13 @@ class BooksTable extends Component<Props> {
         }
       });
 
-      if (this.state.borrowingItem.type === 'BOOK'){
+      if (this.state.borrowingItem.type === 'BOOK') {
         // @ts-ignore
         axios
           .post(
-            `http://localhost:9000/borrowBook/${this.state.borrowingItem.id}/${borrowingDate}/${values.borrowerId}`
+            `http://localhost:9000/borrowBook/${this.state.borrowingItem.id}/${borrowingDate}/${
+              values.borrowerId
+            }`
           )
           .then(res => {
             this.props.action.setBooksList(res.data);
@@ -470,7 +474,11 @@ class BooksTable extends Component<Props> {
       } else if (this.state.borrowingItem.type === 'DVD') {
         // @ts-ignore
         axios
-          .post(`http://localhost:9000/borrowDvd/${this.state.borrowingItem.id}/${borrowingDate}/${values.borrowerId}`)
+          .post(
+            `http://localhost:9000/borrowDvd/${this.state.borrowingItem.id}/${borrowingDate}/${
+              values.borrowerId
+            }`
+          )
           .then(res => {
             this.props.action.setBooksList(res.data);
             // this.setState({
@@ -595,42 +603,67 @@ class BooksTable extends Component<Props> {
   };
 
   generateReport = () => {
-    console.log(this.props);
-    console.log(this.props.books);
-    console.log(this.state.data);
-    const tempReportData: any[] = [];
-    const tableData = this.state.data;
-    const currentDate = getCurrentDate();
+    let doc = new jsPDF('p', 'pt');
 
-    // get only items which reached due dates
-    tableData.map((item: any) => {
-      const dateDifference = getDateDifference(item.borrowedDate, currentDate.toString());
+    // let res = doc.autoTableHtmlToJson(document.getElementById('basic-table'));
+    // doc.autoTable(res.columns, res.data, { margin: { top: 80 } });
+    //
+    // let header = function(data) {
+    //   doc.setFontSize(18);
+    //   doc.setTextColor(40);
+    //   doc.setFontStyle('normal');
+    //   // doc.addImage(headerImgData, 'JPEG', data.settings.margin.left, 20, 50, 50);
+    //   doc.text('Testing Report', data.settings.margin.left, 50);
+    // };
+    //
+    // let options = {
+    //   beforePageContent: header,
+    //   margin: {
+    //     top: 80
+    //   },
+    //   startY: doc.autoTableEndPosY() + 20
+    // };
+    //
+    // doc.autoTable(res.columns, res.data, options);
 
-      if (item.type === 'book') {
-        if (dateDifference > 7) {
-          const debt = calculateDebt(dateDifference);
-          tempReportData.push({
-            dateDifference,
-            debt,
-            ...item
-          });
-        }
-      } else {
-        if (dateDifference > 3) {
-          const debt = calculateDebt(dateDifference);
-          tempReportData.push({
-            dateDifference,
-            debt,
-            ...item
-          });
-        }
-      }
-    });
+    doc.save('table.pdf');
 
-    // sort by dateDifference
-    tempReportData.sort(sortBy('dateDifference'));
-
-    console.table(tempReportData);
+    // console.log(this.props);
+    // console.log(this.props.books);
+    // console.log(this.state.data);
+    // const tempReportData: any[] = [];
+    // const tableData = this.state.data;
+    // const currentDate = getCurrentDate();
+    //
+    // // get only items which reached due dates
+    // tableData.map((item: any) => {
+    //   const dateDifference = getDateDifference(item.borrowedDate, currentDate.toString());
+    //
+    //   if (item.type === 'book') {
+    //     if (dateDifference > 7) {
+    //       const debt = calculateDebt(dateDifference);
+    //       tempReportData.push({
+    //         dateDifference,
+    //         debt,
+    //         ...item
+    //       });
+    //     }
+    //   } else {
+    //     if (dateDifference > 3) {
+    //       const debt = calculateDebt(dateDifference);
+    //       tempReportData.push({
+    //         dateDifference,
+    //         debt,
+    //         ...item
+    //       });
+    //     }
+    //   }
+    // });
+    //
+    // // sort by dateDifference
+    // tempReportData.sort(sortBy('dateDifference'));
+    //
+    // console.table(tempReportData);
   };
 
   public onSelectChange = (selectedRowKeys: any) => {
@@ -756,6 +789,69 @@ class BooksTable extends Component<Props> {
           columns={this.columns}
           dataSource={this.state.data}
         />
+
+        <table id="basic-table" style={{ display: 'none' }}>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>First name</th>
+              <th>Last name</th>
+              <th>Email</th>
+              <th>Country</th>
+              <th>IP-address</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td align="right">1</td>
+              <td>Donna</td>
+              <td>Moore</td>
+              <td>dmoore0@furl.net</td>
+              <td>China</td>
+              <td>211.56.242.221</td>
+            </tr>
+            <tr>
+              <td align="right">2</td>
+              <td>Janice</td>
+              <td>Henry</td>
+              <td>jhenry1@theatlantic.com</td>
+              <td>Ukraine</td>
+              <td>38.36.7.199</td>
+            </tr>
+            <tr>
+              <td align="right">3</td>
+              <td>Ruth</td>
+              <td>Wells</td>
+              <td>rwells2@constantcontact.com</td>
+              <td>Trinidad and Tobago</td>
+              <td>19.162.133.184</td>
+            </tr>
+            <tr>
+              <td align="right">4</td>
+              <td>Jason</td>
+              <td>Ray</td>
+              <td>jray3@psu.edu</td>
+              <td>Brazil</td>
+              <td>10.68.11.42</td>
+            </tr>
+            <tr>
+              <td align="right">5</td>
+              <td>Jane</td>
+              <td>Stephens</td>
+              <td>jstephens4@go.com</td>
+              <td>United States</td>
+              <td>47.32.129.71</td>
+            </tr>
+            <tr>
+              <td align="right">6</td>
+              <td>Adam</td>
+              <td>Nichols</td>
+              <td>anichols5@com.com</td>
+              <td>Canada</td>
+              <td>18.186.38.37</td>
+            </tr>
+          </tbody>
+        </table>
       </Layout>
     );
   }
