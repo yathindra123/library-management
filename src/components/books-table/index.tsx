@@ -192,12 +192,15 @@ class BooksTable extends Component<Props> {
       title: 'Action',
       key: 'action',
       width: 360,
-      render: (text: any, record: any) => (
+      render: (private text: any, record: any) => (
         <span>
           <Button
             type="primary"
             onClick={() => {
-              console.log(text);
+              if (record.currentReader) {
+                message.error('Return before borrowing this item');
+                return;
+              }
               // @ts-ignore
               this.setState({
                 borrowingItem: record
@@ -213,6 +216,10 @@ class BooksTable extends Component<Props> {
           <Button
             type="primary"
             onClick={() => {
+              if (!record.currentReader) {
+                message.error('This item does not borrowed to return');
+                return;
+              }
               // @ts-ignore
               this.setState({
                 returningItem: record
@@ -316,12 +323,12 @@ class BooksTable extends Component<Props> {
 
       const publicationDate: any[] = publicationDateTemp.split('-');
 
-      const borrowedDateTemp = new Date(values.borrowedDate)
-        .toISOString()
-        .slice(0, 10)
-        .replace(/-/g, '-');
-
-      const borrowedDate: any[] = borrowedDateTemp.split('-');
+      // const borrowedDateTemp = new Date(values.borrowedDate)
+      //   .toISOString()
+      //   .slice(0, 10)
+      //   .replace(/-/g, '-');
+      //
+      // const borrowedDate: any[] = borrowedDateTemp.split('-');
 
       const authorNames = values.names;
 
@@ -348,14 +355,14 @@ class BooksTable extends Component<Props> {
         sector: values.sector,
         author: values.names,
         publisher: values.publisher,
-        borrowedDate: borrowedDateTemp,
+        borrowedDate: null,
         type: values.type,
         numOfPages: values.numOfPages,
         actors,
         availLanguages: languages,
         availSubtitles: subtitles,
         publicationDate: publicationDateTemp,
-        personBorrowed: values.borrower
+        personBorrowed: null
       };
 
       const itemsList = items.items;
@@ -378,9 +385,9 @@ class BooksTable extends Component<Props> {
               day: publicationDate[2]
             },
             borrowedDate: {
-              year: borrowedDate[0],
-              month: borrowedDate[1],
-              day: borrowedDate[2]
+              year: 0,
+              month: 0,
+              day: 0
             },
             currentReader: {
               id: values.borrower,
@@ -410,12 +417,12 @@ class BooksTable extends Component<Props> {
               day: publicationDate[2]
             },
             borrowedDate: {
-              year: borrowedDate[0],
-              month: borrowedDate[1],
-              day: borrowedDate[2]
+              year: 0,
+              month: 0,
+              day: 0
             },
             currentReader: {
-              id: values.borrower,
+              id: '',
               name: '',
               mobile: '',
               email: ''
@@ -433,7 +440,7 @@ class BooksTable extends Component<Props> {
             console.log(error);
           });
       } else {
-        message.error("Invalid type: " + values.type)
+        message.error('Invalid type: ' + values.type);
       }
     });
   };
@@ -457,11 +464,12 @@ class BooksTable extends Component<Props> {
           item.personBorrowed = values.borrowerId;
         }
       });
-
+      // @ts-ignore
       if (this.state.borrowingItem.type === ItemType.BOOK) {
         // @ts-ignore
         axios
           .post(
+            // @ts-ignore
             `http://localhost:9000/borrowBook/${this.state.borrowingItem.id}/${borrowingDate}/${
               values.borrowerId
             }`
@@ -474,22 +482,24 @@ class BooksTable extends Component<Props> {
         // @ts-ignore
         form.resetFields();
         this.setState({ visibleBorrow: false });
-      } else if (this.state.borrowingItem.type === ItemType.DVD) {
+      } else {
         // @ts-ignore
-        axios
-          .post(
-            `http://localhost:9000/borrowDvd/${this.state.borrowingItem.id}/${borrowingDate}/${
-              values.borrowerId
-            }`
-          )
-          .then(() => {
-            // get items after borrowing dvd
-            this.getItems();
-          });
+        if (this.state.borrowingItem.type === ItemType.DVD) {
+          // @ts-ignore
+          axios
+            .post(
+              // @ts-ignore
+              `http://localhost:9000/borrowDvd/${this.state.borrowingItem.id}/${borrowingDate}/${values.borrowerId}`
+            )
+            .then(() => {
+              // get items after borrowing dvd
+              this.getItems();
+            });
 
-        // @ts-ignore
-        form.resetFields();
-        this.setState({ visibleBorrow: false });
+          // @ts-ignore
+          form.resetFields();
+          this.setState({ visibleBorrow: false });
+        }
       }
     });
   };
@@ -535,16 +545,6 @@ class BooksTable extends Component<Props> {
           this.getItems();
         });
       }
-
-      // update json
-      // items.items.map(item => {
-      //   // @ts-ignore
-      //   if (item.key === this.state.returningItem.key) {
-      //     // update record
-      //     item.borrowedDate = '';
-      //     item.personBorrowed = '';
-      //   }
-      // });
 
       this.setState({ visibleBorrow: false });
     }, 1000);
@@ -865,5 +865,3 @@ export default connect(
   mapDisptachToProps
   // @ts-ignore
 )(BooksTable);
-
-// export default BooksTable

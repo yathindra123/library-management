@@ -1,23 +1,8 @@
 import { actionCreatorFactory } from 'typescript-fsa';
 import { reducerWithInitialState } from 'typescript-fsa-reducers';
 import { ItemType } from 'src/enums/item';
+import { Item } from 'src/model/item';
 const actionCreator = actionCreatorFactory('itemList');
-
-// export class Item {
-//   name: string
-//   description: string
-//   author: string
-// }
-
-// export interface ITaskState {
-//   members: Item[];
-// }
-
-export interface Item {
-  name: string;
-  description: string;
-  author: string;
-}
 
 export interface State {
   items: Item[];
@@ -55,19 +40,20 @@ export const itemsReducer = reducerWithInitialState(initialState)
   }))
   .build();
 
+// @ts-ignore
 function addItemHandler(state: State, item: any): State {
-  state.items.push({
-    name: item[0],
-    description: item[1],
-    author: item[2]
-  });
+  // state.items.push({
+  //   name: item[0],
+  //   description: item[1],
+  //   author: item[2]
+  // });
 
   return {
     ...state
   };
 }
 
-function setItemHandler(state: State, bookList: any) {
+function setItemHandler(state: State, bookList: Item[]) {
   // format data
   let dateString = '';
   bookList.map((item: any) => {
@@ -122,7 +108,6 @@ function setItemHandler(state: State, bookList: any) {
     }
   });
   state.items = bookList;
-
   return {
     ...state
   };

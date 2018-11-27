@@ -95,7 +95,10 @@ class ItemCards extends Component<Props> {
   };
 
   showBorrowModal = (card: any) => {
-    console.log('shoinggg', card, 'ff');
+    if (card.currentReader) {
+      message.error('Return before borrowing this item');
+      return;
+    }
     this.setState({
       visibleBorrow: true,
       borrowingItem: card
@@ -119,7 +122,6 @@ class ItemCards extends Component<Props> {
 
   handleBorrow = () => {
     const form = this.borrowFormRef.props.form;
-    console.log(form);
     form.validateFields((err: any, values: any) => {
       if (err) {
         return;
@@ -129,10 +131,11 @@ class ItemCards extends Component<Props> {
         .slice(0, 10)
         .replace(/-/g, '-');
 
+      // @ts-ignore
       if (this.state.borrowingItem.type === ItemType.BOOK) {
-        // @ts-ignore
         axios
           .post(
+            // @ts-ignore
             `http://localhost:9000/borrowBook/${this.state.borrowingItem.id}/${borrowingDate}/${
               values.borrowerId
             }`
@@ -142,13 +145,14 @@ class ItemCards extends Component<Props> {
             this.getItems();
           });
 
-        // @ts-ignore
         form.resetFields();
         this.setState({ visibleBorrow: false });
+        // @ts-ignore
       } else if (this.state.borrowingItem.type === ItemType.DVD) {
         // @ts-ignore
         axios
           .post(
+            // @ts-ignore
             `http://localhost:9000/borrowDvd/${this.state.borrowingItem.id}/${borrowingDate}/${
               values.borrowerId
             }`
@@ -167,7 +171,6 @@ class ItemCards extends Component<Props> {
   };
 
   handleReturn = () => {
-    console.log('returning...');
     setTimeout(() => {
       // @ts-ignore
       if (!this.state.returningItem.currentReader) {
@@ -220,7 +223,11 @@ class ItemCards extends Component<Props> {
         <Col span={8} key={i} style={{ width: '25em', marginTop: '3em' }}>
           <Card title={card.title} bordered={false}>
             <div style={{ position: 'relative', left: '40%', width: '20%', marginBottom: '1em' }}>
-              <Avatar shape="square" size="large" icon="user" />
+              {card.type === ItemType.BOOK ? (
+                <Avatar shape="square" size="large" icon="book" />
+              ) : (
+                <Avatar shape="square" size="large" icon="play-circle" />
+              )}
             </div>
             {card.currentReader ? 'Borrower : ' : 'No one taken yet'}
             {card.currentReader ? card.currentReader : null}
@@ -253,14 +260,6 @@ class ItemCards extends Component<Props> {
                 borrowingItem={card}
               />
             </div>
-            {/*<div>*/}
-            {/*<ReturnItemForm*/}
-            {/*wrappedComponentRef={this.returnItemFormRef}*/}
-            {/*visible={this.state.visibleReturn}*/}
-            {/*handleReturn={this.handleReturn}*/}
-            {/*returningItem={card}*/}
-            {/*/>*/}
-            {/*</div>*/}
           </Card>
         </Col>
       );
@@ -293,5 +292,3 @@ export default connect(
   mapDisptachToProps
   // @ts-ignore
 )(ItemCards);
-
-// export default BooksTable

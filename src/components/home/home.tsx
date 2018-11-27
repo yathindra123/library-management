@@ -6,7 +6,7 @@ import { LeftSider } from 'src/components/sider/sider';
 import { Avatar, Badge, Button, Layout, Popover } from 'antd';
 import { itemsAction, TypeItemAction, State } from 'src/store/items';
 import { Store } from 'src/store';
-import { bindActionCreators, compose, Dispatch } from 'redux';
+import { bindActionCreators, Dispatch } from 'redux';
 import { connect } from 'react-redux';
 const { Header, Content, Footer } = Layout;
 

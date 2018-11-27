@@ -180,12 +180,12 @@ const AddBookForm = Form.create()(
                 rules: [{ required: true, message: 'Please enter the publisher!' }]
               })(<Input />)}
             </FormItem>
-            <h4>Borrowed date</h4>
-            <FormItem {...formItemLayout}>
-              {getFieldDecorator('borrowedDate', config)(
-                <DatePicker defaultValue={moment('2018/11/08', dateFormat)} format={dateFormat} />
-              )}
-            </FormItem>
+            {/*<h4>Borrowed date</h4>*/}
+            {/*<FormItem {...formItemLayout}>*/}
+            {/*{getFieldDecorator('borrowedDate', config)(*/}
+            {/*<DatePicker defaultValue={moment('2018/11/08', dateFormat)} format={dateFormat} />*/}
+            {/*)}*/}
+            {/*</FormItem>*/}
             <FormItem className="collection-create-form_last-form-item">
               {getFieldDecorator('type', {
                 initialValue: 'BOOK'
@@ -253,11 +253,11 @@ const AddBookForm = Form.create()(
               )}
             </FormItem>
 
-            <FormItem label="Borrower ID">
-              {getFieldDecorator('borrower', {
-                rules: [{ required: true, message: 'Please enter the subtitles(comma separated)!' }]
-              })(<Input />)}
-            </FormItem>
+            {/*<FormItem label="Borrower ID">*/}
+            {/*{getFieldDecorator('borrower', {*/}
+            {/*rules: [{ required: true, message: 'Please enter the subtitles(comma separated)!' }]*/}
+            {/*})(<Input />)}*/}
+            {/*</FormItem>*/}
           </Form>
         </Modal>
       );

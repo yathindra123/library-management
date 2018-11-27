@@ -35,6 +35,12 @@ export class LeftSider extends Component {
               <span>Members Manager</span>
             </Link>
           </Menu.Item>
+          <Menu.Item key="3">
+            <Link to="/cards">
+              <Icon type="book" theme="outlined" />
+              <span>Items Borrowing</span>
+            </Link>
+          </Menu.Item>
         </Menu>
       </Sider>
     );
