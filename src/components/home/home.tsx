@@ -1,23 +1,24 @@
 import React, { Component } from 'react';
 import './home.css';
-import { Route, Switch } from 'react-router';
+import { Route, Switch, withRouter } from 'react-router';
 import * as Routes from 'src/routes';
 import { LeftSider } from 'src/components/sider/sider';
 import { Avatar, Badge, Button, Layout, Popover } from 'antd';
-import { booksAction, TypeBooksAction, TypeBooksState } from 'src/store/books';
+import { itemsAction, TypeItemAction, State } from 'src/store/items';
 import { Store } from 'src/store';
-import { bindActionCreators, Dispatch } from 'redux';
+import { bindActionCreators, compose, Dispatch } from 'redux';
 import { connect } from 'react-redux';
 const { Header, Content, Footer } = Layout;
 
 import Login from '../../components/login';
 import BooksTable from 'src/components/books-table';
 import MembersTable from 'src/components/members-table';
+import ItemCards from 'src/components/items-cards';
 import { TypeMembersState } from 'src/store/members';
 
 interface Props {
-  action: TypeBooksAction;
-  books: TypeBooksState;
+  action: TypeItemAction;
+  items: State;
   members: TypeMembersState;
 }
 
@@ -63,6 +64,7 @@ class Home extends Component<Props> {
                 <Route exact={true} path="/login" component={Login} />
                 <Route exact={true} path="/books" component={BooksTable} />
                 <Route exact={true} path="/members" component={MembersTable} />
+                <Route exact={true} path="/cards" component={ItemCards} />
                 <Route render={Routes.NotFoundRedirectToRoot} />
               </Switch>
             </Content>
@@ -75,16 +77,19 @@ class Home extends Component<Props> {
 }
 
 const mapStateToProps = (state: Store) => ({
-  books: state.books
+  items: state.items
 });
 
 const mapDisptachToProps = (dispatch: Dispatch) => ({
-  action: bindActionCreators({ ...booksAction }, dispatch)
+  action: bindActionCreators({ ...itemsAction }, dispatch)
 });
 
-export default connect(
-  mapStateToProps,
-  mapDisptachToProps
-)(Home);
+export default withRouter(
+  // @ts-ignore
+  connect(
+    mapStateToProps,
+    mapDisptachToProps
+  )(Home)
+);
 
 // export default Home

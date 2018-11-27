@@ -186,27 +186,28 @@ class MembersTable extends Component<Props> {
     return (
       <Layout>
         <Row type="flex" justify="end" style={{ height: '5em' }}>
-          <AutoComplete
-            style={{ width: 200 }}
-            dataSource={dataSource}
-            placeholder="try to type `b`"
-            filterOption={(inputValue, option) =>
-              // @ts-ignore
-              option.props.children.toUpperCase().indexOf(inputValue.toUpperCase()) !== -1
-            }
-            onSelect={value => {
-              if (typeof value !== 'string') {
-                value = value.toString();
-              }
-              console.log('l', value);
-              // this will execute when an item is selected from the search list
-              // this.updateTable(value)
-            }}
-            onSearch={value => {
-              // this.updateTable(value)
-              console.log('s', value);
-            }}
-          />
+          {/*<AutoComplete*/}
+          {/*style={{ width: 200 }}*/}
+          {/*dataSource={dataSource}*/}
+          {/*placeholder="try to type `b`"*/}
+          {/*filterOption={(inputValue, option) =>*/}
+          {/*// @ts-ignore*/}
+          {/*option.props.children.toUpperCase().indexOf(inputValue.toUpperCase()) !== -1*/}
+          {/*}*/}
+          {/*onSelect={value => {*/}
+          {/*if (typeof value !== 'string') {*/}
+          {/*value = value.toString();*/}
+          {/*}*/}
+          {/*console.log('l', value);*/}
+          {/*// this will execute when an item is selected from the search list*/}
+          {/*// this.updateTable(value)*/}
+          {/*}}*/}
+          {/*onSearch={value => {*/}
+          {/*// this.updateTable(value)*/}
+          {/*console.log('s', value);*/}
+          {/*}}*/}
+          {/*/>*/}
+
           {/*<AutoComplete*/}
           {/*style={{ marginRight: '5em', width: 200, marginTop: 'auto', marginBottom: 'auto' }}*/}
           {/*dataSource={this.state.data}*/}

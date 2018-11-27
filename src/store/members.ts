@@ -39,11 +39,11 @@ export const membersReducer = reducerWithInitialState(membersInitialState)
   }))
   .build();
 
-function addMembersHandler(state: TypeMembersState, book: any): TypeMembersState {
+function addMembersHandler(state: TypeMembersState, item: any): TypeMembersState {
   state.members.push({
-    name: book[0],
-    mobile: book[1],
-    email: book[2]
+    name: item[0],
+    mobile: item[1],
+    email: item[2]
   });
 
   return {

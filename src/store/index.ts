@@ -4,18 +4,18 @@ import { applyMiddleware, combineReducers, createStore } from 'redux';
 import thunk from 'redux-thunk';
 import { composeWithDevTools } from 'redux-devtools-extension';
 import { counterReducer, TypeCounterState } from 'src/store/counter';
-import { booksReducer, TypeBooksState } from 'src/store/books';
+import { itemsReducer, State } from 'src/store/items';
 import { membersReducer, TypeMembersState } from 'src/store/members';
 
 export interface Store {
   counter: TypeCounterState;
-  books: TypeBooksState;
+  items: State;
   members: TypeMembersState;
 }
 
 const reducers = combineReducers({
   counter: counterReducer,
-  books: booksReducer,
+  items: itemsReducer,
   members: membersReducer
 });
 

@@ -1,65 +1,65 @@
 import { actionCreatorFactory } from 'typescript-fsa';
 import { reducerWithInitialState } from 'typescript-fsa-reducers';
 import { ItemType } from 'src/enums/item';
-const actionCreator = actionCreatorFactory('booksList');
+const actionCreator = actionCreatorFactory('itemList');
 
-// export class Book {
+// export class Item {
 //   name: string
 //   description: string
 //   author: string
 // }
 
 // export interface ITaskState {
-//   members: Book[];
+//   members: Item[];
 // }
 
-export interface Book {
+export interface Item {
   name: string;
   description: string;
   author: string;
 }
 
-export interface TypeBooksState {
-  books: Book[];
+export interface State {
+  items: Item[];
 }
 
-export const booksInitialState: TypeBooksState = {
-  books: []
+export const initialState: State = {
+  items: []
 };
 
-export const booksAction = {
-  setBooksList: actionCreator<any>('SET_BOOKS'),
+export const itemsAction = {
+  setItemsList: actionCreator<any>('SET_ITEMS'),
   reset: actionCreator('RESET'),
   add: actionCreator<any>('ADD'),
   edit: actionCreator<any>('EDIT'),
   delete: actionCreator<string>('DELETE')
 };
 
-export type TypeBooksAction = typeof booksAction;
+export type TypeItemAction = typeof itemsAction;
 
-export const booksReducer = reducerWithInitialState(booksInitialState)
+export const itemsReducer = reducerWithInitialState(initialState)
   // @ts-ignore
-  .case(booksAction.setBooksList, setBookHandler)
-  .case(booksAction.reset, () => booksInitialState)
+  .case(itemsAction.setItemsList, setItemHandler)
+  .case(itemsAction.reset, () => initialState)
   // @ts-ignore
-  .case(booksAction.add, addBookHandler)
+  .case(itemsAction.add, addItemHandler)
   // @ts-ignore
-  .case(booksAction.edit, (state, payload) => ({
+  .case(itemsAction.edit, (state, payload) => ({
     ...state,
     name: payload
   }))
   // @ts-ignore
-  .case(booksAction.delete, (state, payload) => ({
+  .case(itemsAction.delete, (state, payload) => ({
     ...state,
     name: payload
   }))
   .build();
 
-function addBookHandler(state: TypeBooksState, book: any): TypeBooksState {
-  state.books.push({
-    name: book[0],
-    description: book[1],
-    author: book[2]
+function addItemHandler(state: State, item: any): State {
+  state.items.push({
+    name: item[0],
+    description: item[1],
+    author: item[2]
   });
 
   return {
@@ -67,7 +67,7 @@ function addBookHandler(state: TypeBooksState, book: any): TypeBooksState {
   };
 }
 
-function setBookHandler(state: TypeBooksState, bookList: any) {
+function setItemHandler(state: State, bookList: any) {
   // format data
   let dateString = '';
   bookList.map((item: any) => {
@@ -121,7 +121,7 @@ function setBookHandler(state: TypeBooksState, bookList: any) {
       item.authorId = [];
     }
   });
-  state.books = bookList;
+  state.items = bookList;
 
   return {
     ...state

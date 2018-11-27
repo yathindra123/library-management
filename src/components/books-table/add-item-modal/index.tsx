@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { Modal, Form, Input, Radio, DatePicker, Icon, Button } from 'antd';
 import moment from 'moment';
+import { ItemType } from 'src/enums/item';
 
 const FormItem = Form.Item;
 // const Option = Select.Option
@@ -187,19 +188,19 @@ const AddBookForm = Form.create()(
             </FormItem>
             <FormItem className="collection-create-form_last-form-item">
               {getFieldDecorator('type', {
-                initialValue: 'book'
+                initialValue: 'BOOK'
               })(
                 <Radio.Group onChange={this.handleBookDvdChange}>
-                  <Radio value="book">
+                  <Radio value="BOOK">
                     <Icon type="book" /> Book
                   </Radio>
-                  <Radio value="dvd">
+                  <Radio value="DVD">
                     <Icon type="play-circle" /> DVD
                   </Radio>
                 </Radio.Group>
               )}
             </FormItem>
-            {this.state.addItemType === 'book' ? (
+            {this.state.addItemType === ItemType.BOOK ? (
               <FormItem label="Num of pages">
                 {getFieldDecorator('numOfPages', {
                   getValueFromEvent: (e: React.FormEvent<HTMLInputElement>) => {
@@ -217,7 +218,7 @@ const AddBookForm = Form.create()(
               </FormItem>
             ) : null}
 
-            {this.state.addItemType === 'dvd' ? (
+            {this.state.addItemType === ItemType.DVD ? (
               <FormItem label="Actors">
                 {getFieldDecorator('actors', {
                   rules: [{ required: true, message: 'Please enter the actors(comma separated)!' }]
@@ -225,7 +226,7 @@ const AddBookForm = Form.create()(
               </FormItem>
             ) : null}
 
-            {this.state.addItemType === 'dvd' ? (
+            {this.state.addItemType === ItemType.DVD ? (
               <FormItem label="Languages">
                 {getFieldDecorator('languages', {
                   rules: [
@@ -235,7 +236,7 @@ const AddBookForm = Form.create()(
               </FormItem>
             ) : null}
 
-            {this.state.addItemType === 'dvd' ? (
+            {this.state.addItemType === ItemType.DVD ? (
               <FormItem label="Subtitles">
                 {getFieldDecorator('subtitles', {
                   rules: [

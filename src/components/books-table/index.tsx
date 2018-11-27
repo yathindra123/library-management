@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { Table, Row, Col, Button, Layout, message, Tag, Divider } from 'antd';
-import { booksAction, TypeBooksAction, TypeBooksState } from 'src/store/books';
+import { itemsAction, TypeItemAction, State } from 'src/store/items';
 import { Store } from 'src/store';
 import { bindActionCreators, Dispatch } from 'redux';
 import { connect } from 'react-redux';
@@ -8,8 +8,6 @@ import AddBookForm from 'src/components/books-table/add-item-modal';
 import DeleteBook from 'src/components/books-table/delete-item-modal';
 import BorrowItemForm from 'src/components/borrow-item';
 import jsPDF from 'jspdf';
-// import jsPDF from '@types/jspdf/index.d.ts';
-// declare var jspdf: any;
 // import mocks
 import items from '../../../mocks/items.json';
 import ReturnItemForm from 'src/components/return-item';
@@ -17,8 +15,8 @@ import axios from 'axios';
 import { ItemType } from 'src/enums/item';
 
 interface Props {
-  action: TypeBooksAction;
-  books: TypeBooksState;
+  action: TypeItemAction;
+  items: State;
 }
 
 const maximumPossibleItems = 150;
@@ -215,7 +213,6 @@ class BooksTable extends Component<Props> {
           <Button
             type="primary"
             onClick={() => {
-              // console.log(record)
               // @ts-ignore
               this.setState({
                 returningItem: record
@@ -239,13 +236,17 @@ class BooksTable extends Component<Props> {
   private borrowFormRef: any;
 
   componentDidMount() {
+    this.getItems();
+  }
+
+  getItems = () => {
     axios.get(`http://localhost:9000/items`).then(res => {
-      this.props.action.setBooksList(res.data);
+      this.props.action.setItemsList(res.data);
       this.setState({
-        data: this.props.books
+        data: this.props.items
       });
     });
-  }
+  };
 
   showAddModal = () => {
     this.setState({
@@ -389,13 +390,14 @@ class BooksTable extends Component<Props> {
             },
             author: authors
           })
-          .then(response => {
-            console.log(response);
+          .then(() => {
+            // get items after adding book
+            this.getItems();
           })
           .catch(error => {
             console.log(error);
           });
-      } else {
+      } else if (values.type === ItemType.DVD) {
         axios
           .post('http://localhost:9000/items/savedvd', {
             id: null,
@@ -423,12 +425,15 @@ class BooksTable extends Component<Props> {
             producer: 'I am the producer',
             actors
           })
-          .then(response => {
-            console.log(response);
+          .then(() => {
+            // get items after adding dvd
+            this.getItems();
           })
           .catch(error => {
             console.log(error);
           });
+      } else {
+        message.error("Invalid type: " + values.type)
       }
     });
   };
@@ -453,7 +458,7 @@ class BooksTable extends Component<Props> {
         }
       });
 
-      if (this.state.borrowingItem.type === 'BOOK') {
+      if (this.state.borrowingItem.type === ItemType.BOOK) {
         // @ts-ignore
         axios
           .post(
@@ -462,16 +467,14 @@ class BooksTable extends Component<Props> {
             }`
           )
           .then(res => {
-            this.props.action.setBooksList(res.data);
-            // this.setState({
-            //   data: this.props.members
-            // });
+            // get items after borrowing book
+            this.getItems();
           });
 
         // @ts-ignore
         form.resetFields();
         this.setState({ visibleBorrow: false });
-      } else if (this.state.borrowingItem.type === 'DVD') {
+      } else if (this.state.borrowingItem.type === ItemType.DVD) {
         // @ts-ignore
         axios
           .post(
@@ -479,11 +482,9 @@ class BooksTable extends Component<Props> {
               values.borrowerId
             }`
           )
-          .then(res => {
-            this.props.action.setBooksList(res.data);
-            // this.setState({
-            //   data: this.props.members
-            // });
+          .then(() => {
+            // get items after borrowing dvd
+            this.getItems();
           });
 
         // @ts-ignore
@@ -517,11 +518,9 @@ class BooksTable extends Component<Props> {
           message.info('Successfully returned the book');
         }
         // @ts-ignore
-        axios.post(`http://localhost:9000/returnBook/${this.state.returningItem.id}`).then(res => {
-          // this.props.action.setBooksList(res.data);
-          // this.setState({
-          //   data: this.props.members
-          // });
+        axios.post(`http://localhost:9000/returnBook/${this.state.returningItem.id}`).then(() => {
+          // get items after returning book
+          this.getItems();
         });
       } else {
         if (dateDifference > 3) {
@@ -531,11 +530,9 @@ class BooksTable extends Component<Props> {
         }
 
         // @ts-ignore
-        axios.post(`http://localhost:9000/returnDvd/${this.state.returningItem.id}`).then(res => {
-          // this.props.action.setBooksList(res.data);
-          // this.setState({
-          //   data: this.props.members
-          // });
+        axios.post(`http://localhost:9000/returnDvd/${this.state.returningItem.id}`).then(() => {
+          // get items after returning dvd
+          this.getItems();
         });
       }
 
@@ -558,11 +555,10 @@ class BooksTable extends Component<Props> {
     if (record.type === ItemType.DVD) {
       axios
         .delete(`http://localhost:9000/items/dvd/${record.id}`)
-        .then(res => {
+        .then(() => {
           message.success('Successfully deleted');
-          // this.setState({
-          //   data: this.props.members
-          // });
+          // get items after deleting dvd
+          this.getItems();
         })
         .catch(err => {
           console.log(err);
@@ -571,11 +567,10 @@ class BooksTable extends Component<Props> {
     } else if (record.type === ItemType.BOOK) {
       axios
         .delete(`http://localhost:9000/items/book/${record.id}`)
-        .then(res => {
+        .then(() => {
           message.success('Successfully deleted');
-          // this.setState({
-          //   data: this.props.members
-          // });
+          // get items after deleting book
+          this.getItems();
         })
         .catch(err => {
           console.log(err);
@@ -603,7 +598,7 @@ class BooksTable extends Component<Props> {
   };
 
   generateReport = () => {
-    let doc = new jsPDF('p', 'pt');
+    const doc = new jsPDF('p', 'pt');
 
     // let res = doc.autoTableHtmlToJson(document.getElementById('basic-table'));
     // doc.autoTable(res.columns, res.data, { margin: { top: 80 } });
@@ -697,7 +692,7 @@ class BooksTable extends Component<Props> {
 
       // find members and dvds count
       for (const item of items.items) {
-        if (item.type === 'book') {
+        if (item.type === ItemType.BOOK) {
           booksCount++;
         } else {
           dvdCount++;
@@ -858,11 +853,11 @@ class BooksTable extends Component<Props> {
 }
 
 const mapStateToProps = (store: Store) => ({
-  books: store.books.books
+  items: store.items.items
 });
 
 const mapDisptachToProps = (dispatch: Dispatch) => ({
-  action: bindActionCreators({ ...booksAction }, dispatch)
+  action: bindActionCreators({ ...itemsAction }, dispatch)
 });
 
 export default connect(
