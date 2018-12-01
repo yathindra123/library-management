@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Table, Row, Col, Button, Layout, message, Tag, Divider } from 'antd';
+import { Table, Row, Col, Button, Layout, message, Tag, Divider, AutoComplete } from 'antd';
 import { itemsAction, TypeItemAction, State } from 'src/store/items';
 import { Store } from 'src/store';
 import { bindActionCreators, Dispatch } from 'redux';
@@ -8,11 +8,14 @@ import AddBookForm from 'src/components/books-table/add-item-modal';
 import DeleteBook from 'src/components/books-table/delete-item-modal';
 import BorrowItemForm from 'src/components/borrow-item';
 import jsPDF from 'jspdf';
+import 'jspdf-autotable';
+import ISBN from 'isbn-verify';
 // import mocks
 import items from '../../../mocks/items.json';
 import ReturnItemForm from 'src/components/return-item';
 import axios from 'axios';
 import { ItemType } from 'src/enums/item';
+import { Item } from 'src/model/item';
 
 interface Props {
   action: TypeItemAction;
@@ -47,6 +50,7 @@ const getCurrentDate = () => {
 };
 
 // sort data list by due date
+// @ts-ignore
 function sortBy(index: any) {
   // @ts-ignore
   return (left, right) => {
@@ -101,14 +105,6 @@ class BooksTable extends Component<Props> {
     deletingItem: {}
   };
 
-  dataRender: any = Object.assign([], this.state.data);
-
-  dataSource = this.dataRender.map((item: any) => {
-    return item.name;
-  });
-
-  filteredBooks: string[] = this.dataSource;
-
   columns = [
     {
       title: 'ISBN',
@@ -144,14 +140,6 @@ class BooksTable extends Component<Props> {
       title: 'Borrowed Date',
       dataIndex: 'borrowedDate'
     },
-    // {
-    //   title: 'Type',
-    //   dataIndex: 'type'
-    // },
-    // {
-    //   title: 'Num of pages',
-    //   dataIndex: 'numOfPages'
-    // },
     {
       title: 'Available languages',
       dataIndex: 'availLanguages',
@@ -192,7 +180,8 @@ class BooksTable extends Component<Props> {
       title: 'Action',
       key: 'action',
       width: 360,
-      render: (private text: any, record: any) => (
+      // @ts-ignore
+      render: (text: any, record: any) => (
         <span>
           <Button
             type="primary"
@@ -250,7 +239,8 @@ class BooksTable extends Component<Props> {
     axios.get(`http://localhost:9000/items`).then(res => {
       this.props.action.setItemsList(res.data);
       this.setState({
-        data: this.props.items
+        data: this.props.items,
+        filteredData: this.props.items
       });
     });
   };
@@ -270,13 +260,6 @@ class BooksTable extends Component<Props> {
   showReturnModal = () => {
     this.setState({
       visibleReturn: true
-    });
-  };
-
-  handleOk = (e: any) => {
-    console.log(e);
-    this.setState({
-      visibleAdd: false
     });
   };
 
@@ -302,6 +285,13 @@ class BooksTable extends Component<Props> {
         return;
       }
 
+      // validate ISBN
+      const isValidISBN = ISBN.Verify(values.isbn);
+
+      if (!isValidISBN) {
+        message.error('Invalid ISBN Entered');
+        return;
+      }
       let actorNames: string[] = [];
       let languages: string[] = [];
       let subtitles: string[] = [];
@@ -364,10 +354,8 @@ class BooksTable extends Component<Props> {
         publicationDate: publicationDateTemp,
         personBorrowed: null
       };
-
-      const itemsList = items.items;
       form.resetFields();
-      this.setState({ visibleAdd: false, filteredData: itemsList });
+      // this.setState({ visibleAdd: false, filteredData: itemsList });
 
       /*
       * send new item to the api
@@ -474,7 +462,7 @@ class BooksTable extends Component<Props> {
               values.borrowerId
             }`
           )
-          .then(res => {
+          .then(() => {
             // get items after borrowing book
             this.getItems();
           });
@@ -489,7 +477,9 @@ class BooksTable extends Component<Props> {
           axios
             .post(
               // @ts-ignore
-              `http://localhost:9000/borrowDvd/${this.state.borrowingItem.id}/${borrowingDate}/${values.borrowerId}`
+              `http://localhost:9000/borrowDvd/${this.state.borrowingItem.id}/${borrowingDate}/${
+                values.borrowerId
+              }`
             )
             .then(() => {
               // get items after borrowing dvd
@@ -598,8 +588,19 @@ class BooksTable extends Component<Props> {
   };
 
   generateReport = () => {
-    const doc = new jsPDF('p', 'pt');
-
+    const doc = new jsPDF({
+      orientation: 'landscape'
+    });
+    // const data = [
+    //   [1, 'Denmark', 7.526, 'Copenhagen'],
+    //   [2, 'Switzerland', 7.509, 'Bern'],
+    //   [3, 'Iceland', 7.501, 'Reykjavík'],
+    //   [4, 'Norway', 7.498, 'Oslo'],
+    //   [5, 'Finland', 7.413, 'Helsinki']
+    // ];
+    //
+    // doc.autoTable(columns, data);
+    // doc.output('dataurlnewwindow');
     // let res = doc.autoTableHtmlToJson(document.getElementById('basic-table'));
     // doc.autoTable(res.columns, res.data, { margin: { top: 80 } });
     //
@@ -607,7 +608,7 @@ class BooksTable extends Component<Props> {
     //   doc.setFontSize(18);
     //   doc.setTextColor(40);
     //   doc.setFontStyle('normal');
-    //   // doc.addImage(headerImgData, 'JPEG', data.settings.margin.left, 20, 50, 50);
+    //   doc.addImage(headerImgData, 'JPEG', data.settings.margin.left, 20, 50, 50);
     //   doc.text('Testing Report', data.settings.margin.left, 50);
     // };
     //
@@ -621,44 +622,87 @@ class BooksTable extends Component<Props> {
     //
     // doc.autoTable(res.columns, res.data, options);
 
-    doc.save('table.pdf');
+    const tempReportData: Item[] = [];
+    const tableData = this.state.filteredData;
+    const currentDate = getCurrentDate();
 
-    // console.log(this.props);
-    // console.log(this.props.books);
-    // console.log(this.state.data);
-    // const tempReportData: any[] = [];
-    // const tableData = this.state.data;
-    // const currentDate = getCurrentDate();
-    //
-    // // get only items which reached due dates
-    // tableData.map((item: any) => {
-    //   const dateDifference = getDateDifference(item.borrowedDate, currentDate.toString());
-    //
-    //   if (item.type === 'book') {
-    //     if (dateDifference > 7) {
-    //       const debt = calculateDebt(dateDifference);
-    //       tempReportData.push({
-    //         dateDifference,
-    //         debt,
-    //         ...item
-    //       });
-    //     }
-    //   } else {
-    //     if (dateDifference > 3) {
-    //       const debt = calculateDebt(dateDifference);
-    //       tempReportData.push({
-    //         dateDifference,
-    //         debt,
-    //         ...item
-    //       });
-    //     }
-    //   }
-    // });
-    //
-    // // sort by dateDifference
-    // tempReportData.sort(sortBy('dateDifference'));
-    //
-    // console.table(tempReportData);
+    // get only items which reached due dates
+    tableData.map((item: any) => {
+      const dateDifference = getDateDifference(item.borrowedDate, currentDate.toString());
+
+      if (item.type === 'book') {
+        if (dateDifference > 7) {
+          const debt = calculateDebt(dateDifference);
+          tempReportData.push({
+            dateDifference,
+            debt,
+            ...item
+          });
+        }
+      } else {
+        if (dateDifference > 3) {
+          const debt = calculateDebt(dateDifference);
+          tempReportData.push({
+            dateDifference,
+            debt,
+            ...item
+          });
+        }
+      }
+    });
+
+    // sort by dateDifference
+    tempReportData.sort(sortBy('dateDifference'));
+
+    // columns in the pdf table
+    const columns = [
+      'ID',
+      'ISBN',
+      'Reader',
+      'Title',
+      'Type',
+      'Sector',
+      'Debt',
+      'Date diff',
+      'Borrowed on'
+    ];
+
+    const arr: string[] = [];
+    tempReportData.map((item: Item) => {
+      const borrowedDate = item.borrowedDate;
+      const currentReader = item.currentReader;
+      // @ts-ignore
+      const dateDifference = item.dateDifference;
+      const title = item.title;
+      // @ts-ignore
+      const debt = item.debt;
+      const id: string = item.id;
+      const isbn = item.isbn;
+      const sector = item.sector;
+      // @ts-ignore
+      const type = item.type;
+
+      const tempArr: string[] = [];
+
+      for (let i = 0; i < 5; i++) {
+        (tempArr[0] = id),
+          (tempArr[1] = isbn),
+          (tempArr[2] = currentReader),
+          (tempArr[3] = title),
+          (tempArr[4] = type),
+          (tempArr[5] = sector),
+          (tempArr[6] = debt),
+          (tempArr[7] = dateDifference),
+          (tempArr[8] = borrowedDate);
+      }
+      // @ts-ignore
+      arr.push(tempArr);
+    });
+    console.log(arr);
+    doc.autoTable(columns, arr);
+    doc.output('dataurlnewwindow');
+
+    doc.save('overdue-report.pdf');
   };
 
   public onSelectChange = (selectedRowKeys: any) => {
@@ -710,6 +754,31 @@ class BooksTable extends Component<Props> {
         return;
       }
     };
+    const dataTableTitles = this.state.data.map(item => {
+      // @ts-ignore
+      return item.title;
+    });
+
+    const updateTable = (value: string) => {
+      const filteredItems: any[] = [];
+      this.state.data.map((item: string) => {
+        // @ts-ignore
+        if (item.title.toLowerCase().indexOf(value.toLowerCase()) !== -1) {
+          filteredItems.push(item);
+        }
+      });
+      console.log(filteredItems);
+      // filteredBooks = filteredItems;
+      // const tempData: any[] = [];
+      // data.filter((item: any) => {
+      //   filteredBooks.map(book => {
+      //     if (book === item.name) {
+      //       tempData.push(item);
+      //     }
+      //   });
+      // });
+      this.setState({ filteredData: filteredItems });
+    };
 
     // const hasSelected = selectedRowKeys.length > 0
     // console.log('size: ', items.items.length)
@@ -717,25 +786,34 @@ class BooksTable extends Component<Props> {
     return (
       <Layout>
         <Row type="flex" justify="end" style={{ height: '5em' }}>
-          {/*<AutoComplete*/}
-          {/*style={{ marginRight: '5em', width: 200, marginTop: 'auto', marginBottom: 'auto' }}*/}
-          {/*dataSource={dataSource}*/}
-          {/*placeholder="Search by book name"*/}
-          {/*filterOption={(inputValue, option) =>*/}
-          {/*// @ts-ignore*/}
-          {/*option.props.children.toUpperCase().indexOf(inputValue.toUpperCase()) !== -1*/}
-          {/*}*/}
-          {/*onSelect={value => {*/}
-          {/*if (typeof value !== 'string') {*/}
-          {/*value = value.toString()*/}
-          {/*}*/}
-          {/*// this will execute when an item is selected from the search list*/}
-          {/*this.updateTable(value)*/}
-          {/*}}*/}
-          {/*onSearch={value => {*/}
-          {/*this.updateTable(value)*/}
-          {/*}}*/}
-          {/*/>*/}
+          <AutoComplete
+            style={{ marginRight: '5em', width: 200, marginTop: 'auto', marginBottom: 'auto' }}
+            dataSource={dataTableTitles}
+            placeholder="Search by item name"
+            filterOption={(inputValue, option) =>
+              // @ts-ignore
+              option.props.children.toUpperCase().indexOf(inputValue.toUpperCase().trim()) !== -1
+            }
+            onSelect={value => {
+              if (typeof value !== 'string') {
+                value = value.toString();
+                console.log('Selected: ' + value);
+              }
+              // this will execute when an item is selected from the search list
+              // this.updateTable(value);
+            }}
+            onSearch={value => {
+              console.log('Entered: ' + value);
+              // this.updateTable(value);
+            }}
+            onChange={value => {
+              if (typeof value === 'string') {
+                updateTable(value);
+              } else {
+                updateTable(value.toString());
+              }
+            }}
+          />
 
           {/*add modal*/}
           {/*<h1>{this.props.members.temp ? JSON.stringify(this.props.members.temp) : 'sdfio'}</h1>*/}
@@ -775,78 +853,14 @@ class BooksTable extends Component<Props> {
               onClick={this.generateReport}
             />
             <Button shape="circle" icon="plus" style={{ marginRight: '1em' }} onClick={handleAdd} />
-            <DeleteBook confirm={this.confirm} cancel={this.cancel} />
           </Col>
         </Row>
         <Table
           style={{ overflowX: 'auto' }}
           rowSelection={rowSelection}
           columns={this.columns}
-          dataSource={this.state.data}
+          dataSource={this.state.filteredData}
         />
-
-        <table id="basic-table" style={{ display: 'none' }}>
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>First name</th>
-              <th>Last name</th>
-              <th>Email</th>
-              <th>Country</th>
-              <th>IP-address</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td align="right">1</td>
-              <td>Donna</td>
-              <td>Moore</td>
-              <td>dmoore0@furl.net</td>
-              <td>China</td>
-              <td>211.56.242.221</td>
-            </tr>
-            <tr>
-              <td align="right">2</td>
-              <td>Janice</td>
-              <td>Henry</td>
-              <td>jhenry1@theatlantic.com</td>
-              <td>Ukraine</td>
-              <td>38.36.7.199</td>
-            </tr>
-            <tr>
-              <td align="right">3</td>
-              <td>Ruth</td>
-              <td>Wells</td>
-              <td>rwells2@constantcontact.com</td>
-              <td>Trinidad and Tobago</td>
-              <td>19.162.133.184</td>
-            </tr>
-            <tr>
-              <td align="right">4</td>
-              <td>Jason</td>
-              <td>Ray</td>
-              <td>jray3@psu.edu</td>
-              <td>Brazil</td>
-              <td>10.68.11.42</td>
-            </tr>
-            <tr>
-              <td align="right">5</td>
-              <td>Jane</td>
-              <td>Stephens</td>
-              <td>jstephens4@go.com</td>
-              <td>United States</td>
-              <td>47.32.129.71</td>
-            </tr>
-            <tr>
-              <td align="right">6</td>
-              <td>Adam</td>
-              <td>Nichols</td>
-              <td>anichols5@com.com</td>
-              <td>Canada</td>
-              <td>18.186.38.37</td>
-            </tr>
-          </tbody>
-        </table>
       </Layout>
     );
   }

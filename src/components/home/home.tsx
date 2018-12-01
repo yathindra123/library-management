@@ -46,8 +46,15 @@ class Home extends Component<Props> {
           {/*Right section*/}
           <Layout>
             <Header style={{ background: 'black', padding: 0 }}>
+              <div>
+                <img
+                  style={{ position: 'absolute', left: '1em', height: '4em' }}
+                  src={require('../../resources/images/westminsterLogo.png')}
+                  alt="Westminster Library Logo"
+                />
+              </div>
               {/*Avatar*/}
-              <div style={{ position: 'absolute', right: '3em' }}>
+              <div style={{ position: 'absolute', top: '0.5em', right: '3em' }}>
                 <Popover placement={'bottom'} content={content} title="User">
                   <span style={{ marginRight: 0 }}>
                     <Badge count={1}>

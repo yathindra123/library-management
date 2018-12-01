@@ -14,7 +14,7 @@ interface Props {
 const BorrowItemForm = Form.create()(
   class extends Component<Props> {
     render() {
-      const { visible, onCancel, onCreate, form, borrowingItem } = this.props;
+      const { visible, onCancel, onCreate, form } = this.props;
       const { getFieldDecorator } = form;
       const formItemLayout = {
         labelCol: {
@@ -29,9 +29,6 @@ const BorrowItemForm = Form.create()(
       const config = {
         rules: [{ type: 'object', required: true, message: 'Please select time!' }]
       };
-
-      const isbn = borrowingItem.key;
-      console.log(this.props.borrowingItem);
       return (
         <Modal
           visible={visible}
@@ -39,6 +36,7 @@ const BorrowItemForm = Form.create()(
           okText="Borrow"
           onCancel={onCancel}
           onOk={onCreate}
+          style={{ backgroundColor: 'transparent' }}
         >
           <Form layout="vertical">
             {/*<FormItem label="Isbn">*/}

@@ -4792,6 +4792,10 @@ isarray@1.0.0, isarray@^1.0.0, isarray@~1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/isarray/-/isarray-1.0.0.tgz#bb935d48582cba168c06834957a54a3e07124f11"
 
+isbn-verify@^1.0.1:
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/isbn-verify/-/isbn-verify-1.0.1.tgz#fac0cfde35da2b24d1a342c9f311c9d6f8a5e85c"
+
 isemail@3.x.x:
   version "3.2.0"
   resolved "https://registry.yarnpkg.com/isemail/-/isemail-3.2.0.tgz#59310a021931a9fb06bbb51e155ce0b3f236832c"

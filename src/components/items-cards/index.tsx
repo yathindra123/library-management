@@ -7,6 +7,7 @@ import { connect } from 'react-redux';
 import axios from 'axios';
 import BorrowItemForm from 'src/components/borrow-item';
 import { ItemType } from 'src/enums/item';
+import './borrow-modal.css';
 
 interface Props {
   action: TypeItemAction;
@@ -90,10 +91,6 @@ class ItemCards extends Component<Props> {
     this.borrowFormRef = formRef;
   };
 
-  returnItemFormRef = (formRef: any) => {
-    console.log(formRef);
-  };
-
   showBorrowModal = (card: any) => {
     if (card.currentReader) {
       message.error('Return before borrowing this item');
@@ -143,6 +140,9 @@ class ItemCards extends Component<Props> {
           .then(() => {
             // get items after borrowing book
             this.getItems();
+          })
+          .catch(() => {
+            message.error('Invalid borrower ID');
           });
 
         form.resetFields();
@@ -160,6 +160,9 @@ class ItemCards extends Component<Props> {
           .then(() => {
             // get items after borrowing dvd
             this.getItems();
+          })
+          .catch(() => {
+            message.error('Invalid borrower ID');
           });
 
         // @ts-ignore

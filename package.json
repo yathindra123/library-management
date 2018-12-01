@@ -50,6 +50,7 @@
     "babel-preset-react": "^6.24.1",
     "connected-react-router": "4.5.0",
     "history": "4.7.2",
+    "isbn-verify": "^1.0.1",
     "jspdf": "^1.4.1",
     "jspdf-autotable": "^2.3.5",
     "loadable-components": "2.2.3",

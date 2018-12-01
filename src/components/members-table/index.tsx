@@ -1,14 +1,11 @@
 import React, { Component } from 'react';
-import { Table, Row, Layout, message, Col, Button, AutoComplete } from 'antd';
+import { Table, Row, Layout, Col, Button } from 'antd';
 import { Store } from 'src/store';
 import { bindActionCreators, Dispatch } from 'redux';
 import { connect } from 'react-redux';
-// import mocks
-import items from '../../../mocks/items.json';
 import axios from 'axios';
 import { membersAction, TypeMembersAction, TypeMembersState } from 'src/store/members';
 import AddMemberForm from 'src/components/members-table/add-member-modal';
-
 interface Props {
   action: TypeMembersAction;
   members: TypeMembersState;
@@ -111,58 +108,6 @@ class MembersTable extends Component<Props> {
     });
   };
 
-  // when confirm the delete confirmation
-  confirm = (e: any) => {
-    console.log(e);
-    console.log(this.state.selectedRowKeys);
-    const hasSelected = this.state.selectedRowKeys.length > 0;
-    if (hasSelected) {
-      items.items.map((item, index) => {
-        this.state.selectedRowKeys.map(isbn => {
-          if (item.key === isbn) {
-            console.log('index : ', index, ' item: ', item);
-            // delete items.items[index]
-            items.items.splice(index, 1);
-            console.log(items.items);
-            this.setState({ filteredData: items.items });
-          }
-        });
-      });
-      // delete items.items[0]
-
-      message.success('Successfully deleted');
-    } else {
-      message.error('Please pick items to delete');
-    }
-  };
-
-  // public updateTable = (value: string) => {
-  //   const filteredItems: string[] = [];
-  //   this.dataSource.map((item: string) => {
-  //     if (item.toLowerCase().indexOf(value.toLowerCase()) !== -1) {
-  //       filteredItems.push(item);
-  //     }
-  //   });
-  //
-  //   this.filteredBooks = filteredItems;
-  //
-  //   const tempData: any[] = [];
-  //   this.data.filter((item: any) => {
-  //     this.filteredBooks.map(book => {
-  //       if (book === item.name) {
-  //         tempData.push(item);
-  //       }
-  //     });
-  //   });
-  //
-  //   this.setState({ filteredData: tempData });
-  // };
-  // when cancel the delete confirmation
-  cancel = (e: any) => {
-    console.log(e);
-    message.error('Canceled deleting');
-  };
-
   saveFormRef = (formRef: any) => {
     this.addFormRef = formRef;
   };
@@ -179,7 +124,6 @@ class MembersTable extends Component<Props> {
       onChange: this.onSelectChange
     };
 
-    // const dataSource = ['Burns Bay Road', 'Downing Street', 'Wall Street'];
     // @ts-ignore
     const dataSource = this.state.data.map(person => person.name);
 
