@@ -441,7 +441,7 @@ class BooksTable extends Component<Props> {
             },
             availLanguages: languages,
             availSubtitles: subtitles,
-            producer: 'I am the producer',
+            producer: values.publisher,
             actors
           })
           .then(() => {
@@ -686,7 +686,7 @@ class BooksTable extends Component<Props> {
 
       const tempArr: string[] = [];
 
-      for (let i = 0; i < 5; i++) {
+      for (let i = 0; i < tempReportData.length; i++) {
         (tempArr[0] = id),
           (tempArr[1] = isbn),
           (tempArr[2] = currentReader),

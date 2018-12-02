@@ -60,7 +60,6 @@ function getDateDifference(startDate: string, endDate: string) {
   const diff = Math.floor(
     (Date.parse(endDate.replace(/-/g, '/')) - Date.parse(startDate.replace(/-/g, '/'))) / 86400000
   );
-  console.log(diff);
   return diff;
 }
 

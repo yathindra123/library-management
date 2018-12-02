@@ -58,13 +58,20 @@ class MembersTable extends Component<Props> {
   };
 
   componentDidMount() {
+    this.getMembers();
+  }
+
+  /**
+   * get all members from the api
+   */
+  getMembers = () => {
     axios.get(`${process.env.BACK_END_URL}/members`).then(res => {
       this.props.action.setMembersList(res.data);
       this.setState({
         data: this.props.members
       });
     });
-  }
+  };
 
   showAddModal = () => {
     this.setState({
@@ -114,9 +121,10 @@ class MembersTable extends Component<Props> {
           this.setState({
             visibleAdd: false
           });
+          this.getMembers();
         })
-        .catch(error => {
-          console.log(error);
+        .catch(() => {
+          message.error('Error adding member');
         });
     });
   };
