@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Table, Row, Layout, Col, Button } from 'antd';
+import { Table, Row, Layout, Col, Button, message } from 'antd';
 import { Store } from 'src/store';
 import { bindActionCreators, Dispatch } from 'redux';
 import { connect } from 'react-redux';
@@ -11,10 +11,12 @@ interface Props {
   members: TypeMembersState;
 }
 
+/**
+ * Members table
+ */
 class MembersTable extends Component<Props> {
-  // create a new array from for searching purpose
   public state = {
-    selectedRowKeys: [], // Check here to configure the default column
+    selectedRowKeys: [],
     data: [],
     loading: false,
     visibleAdd: false,
@@ -23,12 +25,6 @@ class MembersTable extends Component<Props> {
     borrowingItem: {},
     returningItem: {}
   };
-
-  dataRender: any = Object.assign([], this.state.data);
-
-  dataSource = this.dataRender.map((item: any) => {
-    return item.name;
-  });
 
   columns = [
     {
@@ -51,8 +47,18 @@ class MembersTable extends Component<Props> {
 
   private addFormRef: any;
 
+  /**
+   * Validate a given email
+   * @param email - String need to check
+   * Returns a Boolean
+   */
+  validateEmail = (email: string) => {
+    const emailRegExp = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+    return emailRegExp.test(email);
+  };
+
   componentDidMount() {
-    axios.get(`http://localhost:9000/members`).then(res => {
+    axios.get(`${process.env.BACK_END_URL}/members`).then(res => {
       this.props.action.setMembersList(res.data);
       this.setState({
         data: this.props.members
@@ -73,7 +79,9 @@ class MembersTable extends Component<Props> {
     });
   };
 
-  // calls when the items add form submits
+  /**
+   * calls when the items add form submits
+   */
   handleCreate = () => {
     const form = this.addFormRef.props.form;
     form.validateFields((err: any, values: any) => {
@@ -89,13 +97,18 @@ class MembersTable extends Component<Props> {
       };
 
       form.resetFields();
-      // this.setState({ visibleAdd: false, filteredData: itemsList });
+
+      // validate email
+      if (!this.validateEmail(values.email)) {
+        message.error('Invalid email entered');
+        return;
+      }
 
       /*
       * send new item to the api
       * */
       axios
-        .post('http://localhost:9000/member', payload)
+        .post(`${process.env.BACK_END_URL}/member`, payload)
         .then(response => {
           console.log(response);
           this.setState({
@@ -113,7 +126,6 @@ class MembersTable extends Component<Props> {
   };
 
   public onSelectChange = (selectedRowKeys: any) => {
-    console.log('selectedRowKeys changed: ', selectedRowKeys);
     this.setState({ selectedRowKeys });
   };
 
@@ -124,54 +136,9 @@ class MembersTable extends Component<Props> {
       onChange: this.onSelectChange
     };
 
-    // @ts-ignore
-    const dataSource = this.state.data.map(person => person.name);
-
     return (
       <Layout>
         <Row type="flex" justify="end" style={{ height: '5em' }}>
-          {/*<AutoComplete*/}
-          {/*style={{ width: 200 }}*/}
-          {/*dataSource={dataSource}*/}
-          {/*placeholder="try to type `b`"*/}
-          {/*filterOption={(inputValue, option) =>*/}
-          {/*// @ts-ignore*/}
-          {/*option.props.children.toUpperCase().indexOf(inputValue.toUpperCase()) !== -1*/}
-          {/*}*/}
-          {/*onSelect={value => {*/}
-          {/*if (typeof value !== 'string') {*/}
-          {/*value = value.toString();*/}
-          {/*}*/}
-          {/*console.log('l', value);*/}
-          {/*// this will execute when an item is selected from the search list*/}
-          {/*// this.updateTable(value)*/}
-          {/*}}*/}
-          {/*onSearch={value => {*/}
-          {/*// this.updateTable(value)*/}
-          {/*console.log('s', value);*/}
-          {/*}}*/}
-          {/*/>*/}
-
-          {/*<AutoComplete*/}
-          {/*style={{ marginRight: '5em', width: 200, marginTop: 'auto', marginBottom: 'auto' }}*/}
-          {/*dataSource={this.state.data}*/}
-          {/*placeholder="Search by book name"*/}
-          {/*filterOption={(inputValue, option) =>*/}
-          {/*// @ts-ignore*/}
-          {/*option.props.children.toUpperCase().indexOf(inputValue.toUpperCase()) !== -1*/}
-          {/*}*/}
-          {/*onSelect={value => {*/}
-          {/*if (typeof value !== 'string') {*/}
-          {/*value = value.toString();*/}
-          {/*}*/}
-          {/*// this will execute when an item is selected from the search list*/}
-          {/*this.updateTable(value);*/}
-          {/*}}*/}
-          {/*onSearch={value => {*/}
-          {/*this.updateTable(value);*/}
-          {/*}}*/}
-          {/*/>*/}
-
           <div>
             <AddMemberForm
               wrappedComponentRef={this.saveFormRef}

@@ -4,7 +4,6 @@ import moment from 'moment';
 import { ItemType } from 'src/enums/item';
 
 const FormItem = Form.Item;
-// const Option = Select.Option
 
 interface Props {
   visible: any;
@@ -13,7 +12,10 @@ interface Props {
   form: any;
 }
 
-const AddBookForm = Form.create()(
+/**
+ * Add items modal
+ */
+const AddItemForm = Form.create()(
   class extends Component<Props> {
     public state = {
       addItemType: 'book'
@@ -21,14 +23,10 @@ const AddBookForm = Form.create()(
 
     remove = (k: any) => {
       const { form } = this.props;
-      // can use data-binding to get
       const keys = form.getFieldValue('keys');
-      // We need at least one passenger
       if (keys.length === 1) {
         return;
       }
-
-      // can use data-binding to set
       // @ts-ignore
       form.setFieldsValue({
         keys: keys.filter((key: any) => key !== k)
@@ -37,22 +35,10 @@ const AddBookForm = Form.create()(
 
     add = () => {
       const { form } = this.props;
-      // can use data-binding to get
       const keys = form.getFieldValue('keys');
       const nextKeys = keys.concat(keys.length);
-      // can use data-binding to set
-      // important! notify form to detect changes
       form.setFieldsValue({
         keys: nextKeys
-      });
-    };
-
-    handleSubmit = (e: any) => {
-      e.preventDefault();
-      this.props.form.validateFields((err: any, values: any) => {
-        if (!err) {
-          console.log('Received values of form: ', values);
-        }
       });
     };
 
@@ -65,21 +51,9 @@ const AddBookForm = Form.create()(
 
     render() {
       const { visible, onCancel, onCreate } = this.props;
-      // const { getFieldDecorator } = form
-      // const formItemLayout = {
-      //   labelCol: {
-      //     xs: { span: 24 },
-      //     sm: { span: 8 }
-      //   },
-      //   wrapperCol: {
-      //     xs: { span: 24 },
-      //     sm: { span: 16 }
-      //   }
-      // }
       const config = {
         rules: [{ type: 'object', required: true, message: 'Please select time!' }],
         onChange: (item: any) => {
-          // let javaScriptRelease = Date.parse(item)
           console.log(
             new Date(item)
               .toISOString()
@@ -145,7 +119,7 @@ const AddBookForm = Form.create()(
       return (
         <Modal
           visible={visible}
-          title="Create a new collection"
+          title="Add new item"
           okText="Create"
           onCancel={onCancel}
           onOk={onCreate}
@@ -180,12 +154,6 @@ const AddBookForm = Form.create()(
                 rules: [{ required: true, message: 'Please enter the publisher!' }]
               })(<Input />)}
             </FormItem>
-            {/*<h4>Borrowed date</h4>*/}
-            {/*<FormItem {...formItemLayout}>*/}
-            {/*{getFieldDecorator('borrowedDate', config)(*/}
-            {/*<DatePicker defaultValue={moment('2018/11/08', dateFormat)} format={dateFormat} />*/}
-            {/*)}*/}
-            {/*</FormItem>*/}
             <FormItem className="collection-create-form_last-form-item">
               {getFieldDecorator('type', {
                 initialValue: 'BOOK'
@@ -252,12 +220,6 @@ const AddBookForm = Form.create()(
                 <DatePicker defaultValue={moment('2018/11/08', dateFormat)} format={dateFormat} />
               )}
             </FormItem>
-
-            {/*<FormItem label="Borrower ID">*/}
-            {/*{getFieldDecorator('borrower', {*/}
-            {/*rules: [{ required: true, message: 'Please enter the subtitles(comma separated)!' }]*/}
-            {/*})(<Input />)}*/}
-            {/*</FormItem>*/}
           </Form>
         </Modal>
       );
@@ -265,4 +227,4 @@ const AddBookForm = Form.create()(
   }
 );
 
-export default AddBookForm;
+export default AddItemForm;

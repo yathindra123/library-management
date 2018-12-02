@@ -6,11 +6,14 @@ interface Props {
   cancel: any;
 }
 
-class DeleteBook extends Component<Props> {
+/**
+ * Delete item modal
+ */
+class DeleteItem extends Component<Props> {
   render() {
     return (
       <Popconfirm
-        title="Are you sure delete this book?"
+        title="Are you sure delete this item?"
         onConfirm={this.props.confirm}
         onCancel={this.props.cancel}
         okText="Yes"
@@ -22,4 +25,4 @@ class DeleteBook extends Component<Props> {
     );
   }
 }
-export default DeleteBook;
+export default DeleteItem;

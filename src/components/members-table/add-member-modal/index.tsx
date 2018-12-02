@@ -10,6 +10,9 @@ interface Props {
   form: any;
 }
 
+/**
+ * Add member modal
+ */
 const AddMemberForm = Form.create()(
   class extends Component<Props> {
     render() {

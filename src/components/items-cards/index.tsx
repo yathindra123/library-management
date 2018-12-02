@@ -15,6 +15,10 @@ interface Props {
   items: State;
 }
 
+/**
+ * calculate debt
+ * @param dateDiff
+ */
 function calculateDebt(dateDiff: any) {
   let tempDiff = dateDiff;
   let debt = 0;
@@ -33,6 +37,11 @@ function calculateDebt(dateDiff: any) {
   return debt;
 }
 
+/**
+ * add days for a given date
+ * @param strDate
+ * @param daysToAdd
+ */
 function addDays(strDate: string, daysToAdd: number): string {
   const date = new Date(strDate);
   const newDate = new Date(date.setDate(date.getDate() + daysToAdd));
@@ -44,6 +53,9 @@ function addDays(strDate: string, daysToAdd: number): string {
   return strNewDate;
 }
 
+/**
+ * get date difference
+ */
 function getDateDifference(startDate: string, endDate: string) {
   const diff = Math.floor(
     (Date.parse(endDate.replace(/-/g, '/')) - Date.parse(startDate.replace(/-/g, '/'))) / 86400000
@@ -52,6 +64,9 @@ function getDateDifference(startDate: string, endDate: string) {
   return diff;
 }
 
+/**
+ * get current date
+ */
 const getCurrentDate = () => {
   // format current date
   let today = new Date();
@@ -75,6 +90,9 @@ const getCurrentDate = () => {
   return today;
 };
 
+/**
+ * cards view of items
+ */
 class ItemCards extends Component<Props> {
   public state = {
     data: [],
@@ -94,19 +112,16 @@ class ItemCards extends Component<Props> {
     this.getItems();
   }
 
+  /**
+   * get all items
+   */
   getItems = () => {
-    axios.get(`http://localhost:9000/items`).then(res => {
+    axios.get(`${process.env.BACK_END_URL}/items`).then(res => {
       this.props.action.setItemsList(res.data);
       this.setState({
         data: this.props.items
       });
     });
-
-    // axios.get(`http://localhost:9000/reservations`).then(res => {
-    //   this.setState({
-    //     reservations: res.data
-    //   });
-    // });
   };
 
   borrowItemFormRef = (formRef: any) => {
@@ -128,6 +143,9 @@ class ItemCards extends Component<Props> {
     });
   };
 
+  /**
+   * show reservation modal
+   */
   showReservationModal = (card: any) => {
     if (!card.currentReader) {
       message.error('You can borrow this. No need to reserve');
@@ -160,6 +178,9 @@ class ItemCards extends Component<Props> {
     this.handleReturn();
   };
 
+  /**
+   * handle borrow function
+   */
   handleBorrow = () => {
     const form = this.borrowFormRef.props.form;
     form.validateFields((err: any, values: any) => {
@@ -176,9 +197,7 @@ class ItemCards extends Component<Props> {
         axios
           .post(
             // @ts-ignore
-            `http://localhost:9000/borrowBook/${this.state.borrowingItem.id}/${borrowingDate}/${
-              values.borrowerId
-            }`
+            `${process.env.BACK_END_URL}/borrowBook/${this.state.borrowingItem.id}/${borrowingDate}/${values.borrowerId}`
           )
           .then(() => {
             // get items after borrowing book
@@ -196,9 +215,7 @@ class ItemCards extends Component<Props> {
         axios
           .post(
             // @ts-ignore
-            `http://localhost:9000/borrowDvd/${this.state.borrowingItem.id}/${borrowingDate}/${
-              values.borrowerId
-            }`
+            `${process.env.BACK_END_URL}/borrowDvd/${this.state.borrowingItem.id}/${borrowingDate}/${values.borrowerId}`
           )
           .then(() => {
             // get items after borrowing dvd
@@ -216,6 +233,9 @@ class ItemCards extends Component<Props> {
     // this.setState({ visibleBorrow: false });
   };
 
+  /**
+   * handle the return function
+   */
   handleReturn = () => {
     setTimeout(() => {
       // @ts-ignore
@@ -238,11 +258,14 @@ class ItemCards extends Component<Props> {
         } else {
           message.info('Successfully returned the book');
         }
-        // @ts-ignore
-        axios.post(`http://localhost:9000/returnBook/${this.state.returningItem.id}`).then(() => {
-          // get items after returning book
-          this.getItems();
-        });
+
+        axios
+          // @ts-ignore
+          .post(`${process.env.BACK_END_URL}/returnBook/${this.state.returningItem.id}`)
+          .then(() => {
+            // get items after returning book
+            this.getItems();
+          });
       } else {
         if (dateDifference > 3) {
           message.error('There is a debt to pay of ' + calculateDebt(dateDifference));
@@ -250,16 +273,21 @@ class ItemCards extends Component<Props> {
           message.info('Successfully returned the book');
         }
 
-        // @ts-ignore
-        axios.post(`http://localhost:9000/returnDvd/${this.state.returningItem.id}`).then(() => {
-          // get items after returning dvd
-          this.getItems();
-        });
+        axios
+          // @ts-ignore
+          .post(`${process.env.BACK_END_URL}/returnDvd/${this.state.returningItem.id}`)
+          .then(() => {
+            // get items after returning dvd
+            this.getItems();
+          });
       }
       this.setState({ visibleReturn: false });
     }, 1000);
   };
 
+  /**
+   * handle reservation
+   */
   handleReserve = () => {
     const form = this.reserveFormRef.props.form;
     form.validateFields((err: any, values: any) => {
@@ -283,13 +311,6 @@ class ItemCards extends Component<Props> {
 
       // @ts-ignore
       if (getDateDifference(getCurrentDate(), normalReturnDate) > 0) {
-        // let count
-        // this.state.reservations.map(reservation => {
-        //   // @ts-ignore
-        //   if (reservation.id === this.state.reservationItem.id) {
-        //
-        //   }
-        // });
         message.info('This item will normally return on : ' + normalReturnDate);
       } else {
         message.info('Return date of this item has already exceeded');
@@ -298,7 +319,7 @@ class ItemCards extends Component<Props> {
       axios
         .post(
           // @ts-ignore
-          `http://localhost:9000/reservation`,
+          `${process.env.BACK_END_URL}/reservation`,
           {
             id: null,
             // @ts-ignore
@@ -312,6 +333,7 @@ class ItemCards extends Component<Props> {
           }
         )
         .then(() => {
+          message.success('Successfully made the reservation');
           // get items after a reservation (Not Mandatory)
           this.getItems();
         })
@@ -323,9 +345,9 @@ class ItemCards extends Component<Props> {
       form.resetFields();
       this.setState({ visibleReserve: false });
     });
-    // this.setState({ visibleBorrow: false });
   };
 
+  // create cards set
   createTable = () => {
     const cardList: any[] = [];
     const cards = this.state.data;

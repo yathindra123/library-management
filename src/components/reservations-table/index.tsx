@@ -27,12 +27,6 @@ class ReservationsTable extends Component<Props> {
     returningItem: {}
   };
 
-  dataRender: any = Object.assign([], this.state.data);
-
-  dataSource = this.dataRender.map((item: any) => {
-    return item.name;
-  });
-
   columns = [
     {
       title: 'Item ISBN',
@@ -52,68 +46,14 @@ class ReservationsTable extends Component<Props> {
     }
   ];
 
-  private addFormRef: any;
-
   componentDidMount() {
-    axios.get(`http://localhost:9000/reservations`).then(res => {
+    axios.get(`${process.env.BACK_END_URL}/reservations`).then(res => {
       this.props.action.setReservationsList(res.data);
       this.setState({
         data: this.props.reservations
       });
     });
   }
-
-  showAddModal = () => {
-    this.setState({
-      visibleAdd: true
-    });
-  };
-
-  handleCancelAddModal = (e: any) => {
-    console.log(e);
-    this.setState({
-      visibleAdd: false
-    });
-  };
-
-  // calls when the items add form submits
-  handleCreate = () => {
-    const form = this.addFormRef.props.form;
-    form.validateFields((err: any, values: any) => {
-      if (err) {
-        return;
-      }
-
-      const payload = {
-        id: null,
-        name: values.name,
-        email: values.email,
-        mobile: values.mobile
-      };
-
-      form.resetFields();
-      // this.setState({ visibleAdd: false, filteredData: itemsList });
-
-      /*
-      * send new item to the api
-      * */
-      axios
-        .post('http://localhost:9000/member', payload)
-        .then(response => {
-          console.log(response);
-          this.setState({
-            visibleAdd: false
-          });
-        })
-        .catch(error => {
-          console.log(error);
-        });
-    });
-  };
-
-  saveFormRef = (formRef: any) => {
-    this.addFormRef = formRef;
-  };
 
   public onSelectChange = (selectedRowKeys: any) => {
     console.log('selectedRowKeys changed: ', selectedRowKeys);
@@ -127,21 +67,11 @@ class ReservationsTable extends Component<Props> {
       onChange: this.onSelectChange
     };
 
-    // @ts-ignore
-    const dataSource = this.state.data.map(person => person.name);
-
     return (
       <Layout>
         <Row type="flex" justify="end" style={{ height: '5em' }}>
           {/*content*/}
-          <Col span={4} style={{ marginTop: 'auto', marginBottom: 'auto' }}>
-            {/*<Button*/}
-            {/*shape="circle"*/}
-            {/*icon="plus"*/}
-            {/*style={{ marginRight: '1em' }}*/}
-            {/*onClick={this.showAddModal}*/}
-            {/*/>*/}
-          </Col>
+          <Col span={4} style={{ marginTop: 'auto', marginBottom: 'auto' }} />
         </Row>
         <Table
           style={{ overflowX: 'auto' }}

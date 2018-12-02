@@ -10,7 +10,6 @@ import { bindActionCreators, Dispatch } from 'redux';
 import { connect } from 'react-redux';
 const { Header, Content, Footer } = Layout;
 
-import Login from '../../components/login';
 import BooksTable from 'src/components/books-table';
 import MembersTable from 'src/components/members-table';
 import ReservationsTable from 'src/components/reservations-table';
@@ -68,8 +67,6 @@ class Home extends Component<Props> {
             <Content style={{ margin: '0 16px' }}>
               <Switch>
                 <Route exact={true} path="/" component={BooksTable} />
-                <Route exact={true} path="/abc" component={Routes.Counter} />
-                <Route exact={true} path="/login" component={Login} />
                 <Route exact={true} path="/books" component={BooksTable} />
                 <Route exact={true} path="/members" component={MembersTable} />
                 <Route exact={true} path="/reservations" component={ReservationsTable} />
@@ -100,5 +97,3 @@ export default withRouter(
     mapDisptachToProps
   )(Home)
 );
-
-// export default Home

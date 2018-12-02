@@ -6,7 +6,6 @@ import 'src/registerServiceWorker';
 import { history, store } from 'src/store';
 import Home from 'src/components/home/home';
 import './style.css';
-
 const App = () => (
   <Provider store={store}>
     <ConnectedRouter history={history}>
@@ -14,5 +13,6 @@ const App = () => (
     </ConnectedRouter>
   </Provider>
 );
+// export const APP_ID = process.env.APP_ID;
 
 ReactDOM.render(<App />, document.querySelector('#app'));

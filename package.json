@@ -39,6 +39,7 @@
   },
   "dependencies": {
     "@react-pdf/renderer": "^1.0.0-alpha.25",
+    "@types/dotenv": "^6.1.0",
     "@types/redux-thunk": "^2.1.0",
     "antd": "^3.10.4",
     "axios": "^0.18.0",
@@ -49,6 +50,7 @@
     "babel-preset-es2015": "^6.24.1",
     "babel-preset-react": "^6.24.1",
     "connected-react-router": "4.5.0",
+    "dotenv": "^6.1.0",
     "history": "4.7.2",
     "isbn-verify": "^1.0.1",
     "jspdf": "^1.4.1",

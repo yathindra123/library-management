@@ -4,6 +4,9 @@ import { ItemType } from 'src/enums/item';
 import { Item } from 'src/model/item';
 const actionCreator = actionCreatorFactory('itemList');
 
+/**
+ * State of items
+ */
 export interface State {
   items: Item[];
 }

@@ -4,14 +4,12 @@ import { itemsAction, TypeItemAction, State } from 'src/store/items';
 import { Store } from 'src/store';
 import { bindActionCreators, Dispatch } from 'redux';
 import { connect } from 'react-redux';
-import AddBookForm from 'src/components/books-table/add-item-modal';
-import DeleteBook from 'src/components/books-table/delete-item-modal';
+import AddItemForm from 'src/components/books-table/add-item-modal';
+import DeleteItem from 'src/components/books-table/delete-item-modal';
 import BorrowItemForm from 'src/components/borrow-item';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
 import ISBN from 'isbn-verify';
-// import mocks
-import items from '../../../mocks/items.json';
 import ReturnItemForm from 'src/components/return-item';
 import axios from 'axios';
 import { ItemType } from 'src/enums/item';
@@ -21,11 +19,15 @@ interface Props {
   action: TypeItemAction;
   items: State;
 }
-
+// maximum possible items
 const maximumPossibleItems = 150;
 const maximumPossibleBooks = 100;
 const maximumPossibleDVDs = 50;
 
+/**
+ * get current date
+ * return current date
+ */
 const getCurrentDate = () => {
   // format current date
   let today = new Date();
@@ -49,11 +51,12 @@ const getCurrentDate = () => {
   return today;
 };
 
-// sort data list by due date
-// @ts-ignore
+/**
+ * sort data list by due date
+ * @param index
+ */
 function sortBy(index: any) {
-  // @ts-ignore
-  return (left, right) => {
+  return (left: any, right: any) => {
     if (left[index] > right[index]) {
       return 1;
     } else if (left[index] < right[index]) {
@@ -63,6 +66,11 @@ function sortBy(index: any) {
   };
 }
 
+/**
+ * get date difference
+ * @param startDate
+ * @param endDate
+ */
 function getDateDifference(startDate: string, endDate: string) {
   const diff = Math.floor(
     (Date.parse(endDate.replace(/-/g, '/')) - Date.parse(startDate.replace(/-/g, '/'))) / 86400000
@@ -71,6 +79,10 @@ function getDateDifference(startDate: string, endDate: string) {
   return diff;
 }
 
+/**
+ * calculate debt
+ * @param dateDiff - difference of days
+ */
 function calculateDebt(dateDiff: any) {
   let tempDiff = dateDiff;
   let debt = 0;
@@ -88,12 +100,13 @@ function calculateDebt(dateDiff: any) {
 
   return debt;
 }
-class BooksTable extends Component<Props> {
-  // data: any = Array.from(this.props.reservations.temp);
 
-  // create a new array from for searching purpose
+/**
+ * Books table
+ */
+class BooksTable extends Component<Props> {
   public state = {
-    selectedRowKeys: [], // Check here to configure the default column
+    selectedRowKeys: [],
     data: [],
     loading: false,
     visibleAdd: false,
@@ -194,12 +207,9 @@ class BooksTable extends Component<Props> {
                 message.error('Return before borrowing this item');
                 return;
               }
-              // @ts-ignore
               this.setState({
                 borrowingItem: record
               });
-              // console.log(this.state.visibleAdd)
-              // currentBorrowReadyItem = record
               this.showBorrowModal();
             }}
           >
@@ -213,7 +223,6 @@ class BooksTable extends Component<Props> {
                 message.error('This item does not borrowed to return');
                 return;
               }
-              // @ts-ignore
               this.setState({
                 returningItem: record
               });
@@ -225,7 +234,7 @@ class BooksTable extends Component<Props> {
             Return
           </Button>
           <Divider type="vertical" />
-          <DeleteBook confirm={() => this.confirm(record)} cancel={this.cancel} />
+          <DeleteItem confirm={() => this.confirm(record)} cancel={this.cancel} />
         </span>
       )
     }
@@ -239,8 +248,11 @@ class BooksTable extends Component<Props> {
     this.getItems();
   }
 
+  /**
+   * get all items from the api
+   */
   getItems = () => {
-    axios.get(`http://localhost:9000/items`).then(res => {
+    axios.get(`${process.env.BACK_END_URL}/items`).then(res => {
       this.props.action.setItemsList(res.data);
       this.setState({
         data: this.props.items,
@@ -249,37 +261,54 @@ class BooksTable extends Component<Props> {
     });
   };
 
+  /**
+   * Show add modal
+   */
   showAddModal = () => {
     this.setState({
       visibleAdd: true
     });
   };
 
+  /**
+   * Show borrow modal
+   */
   showBorrowModal = () => {
     this.setState({
       visibleBorrow: true
     });
   };
 
+  /**
+   * Show return modal
+   */
   showReturnModal = () => {
     this.setState({
       visibleReturn: true
     });
   };
 
+  /**
+   * hide add modal
+   */
   handleCancelAddModal = () => {
     this.setState({
       visibleAdd: false
     });
   };
 
+  /**
+   * hide borrow modal
+   */
   handleCancelBorrowModal = () => {
     this.setState({
       visibleBorrow: false
     });
   };
 
-  // calls when the items add form submits
+  /**
+   * calls when the items add form submits
+   */
   handleCreate = () => {
     const form = this.addFormRef.props.form;
     form.validateFields((err: any, values: any) => {
@@ -350,14 +379,13 @@ class BooksTable extends Component<Props> {
         personBorrowed: null
       };
       form.resetFields();
-      // this.setState({ visibleAdd: false, filteredData: itemsList });
 
       /*
       * send new item to the api
       * */
       if (values.type === ItemType.BOOK) {
         axios
-          .post('http://localhost:9000/items/savebook', {
+          .post(`${process.env.BACK_END_URL}/items/savebook`, {
             id: null,
             isbn: values.isbn,
             title: book.title,
@@ -390,7 +418,7 @@ class BooksTable extends Component<Props> {
           });
       } else if (values.type === ItemType.DVD) {
         axios
-          .post('http://localhost:9000/items/savedvd', {
+          .post(`${process.env.BACK_END_URL}/items/savedvd`, {
             id: null,
             isbn: values.isbn,
             title: book.title,
@@ -430,6 +458,9 @@ class BooksTable extends Component<Props> {
     });
   };
 
+  /**
+   * calls when borrow button clicked
+   */
   handleBorrow = () => {
     const form = this.borrowFormRef.props.form;
     form.validateFields((err: any, values: any) => {
@@ -441,23 +472,13 @@ class BooksTable extends Component<Props> {
         .slice(0, 10)
         .replace(/-/g, '-');
 
-      // update json
-      items.items.map(item => {
-        if (item.key === values.isbn) {
-          // update record
-          item.borrowedDate = borrowingDate;
-          item.personBorrowed = values.borrowerId;
-        }
-      });
       // @ts-ignore
       if (this.state.borrowingItem.type === ItemType.BOOK) {
         // @ts-ignore
         axios
           .post(
             // @ts-ignore
-            `http://localhost:9000/borrowBook/${this.state.borrowingItem.id}/${borrowingDate}/${
-              values.borrowerId
-            }`
+            `${process.env.BACK_END_URL}/borrowBook/${this.state.borrowingItem.id}/${borrowingDate}/${values.borrowerId}`
           )
           .then(() => {
             this.handleCancelBorrowModal();
@@ -475,9 +496,7 @@ class BooksTable extends Component<Props> {
           axios
             .post(
               // @ts-ignore
-              `http://localhost:9000/borrowDvd/${this.state.borrowingItem.id}/${borrowingDate}/${
-                values.borrowerId
-              }`
+              `${process.env.BACK_END_URL}/borrowDvd/${this.state.borrowingItem.id}/${borrowingDate}/${values.borrowerId}`
             )
             .then(() => {
               this.handleCancelBorrowModal();
@@ -493,6 +512,9 @@ class BooksTable extends Component<Props> {
     });
   };
 
+  /**
+   * calls when return button clicked
+   */
   handleReturn = () => {
     // doc.save('a4.pdf')
     setTimeout(() => {
@@ -516,11 +538,13 @@ class BooksTable extends Component<Props> {
         } else {
           message.info('Successfully returned the book');
         }
-        // @ts-ignore
-        axios.post(`http://localhost:9000/returnBook/${this.state.returningItem.id}`).then(() => {
-          // get items after returning book
-          this.getItems();
-        });
+        axios
+          // @ts-ignore
+          .post(`${process.env.BACK_END_URL}/returnBook/${this.state.returningItem.id}`)
+          .then(() => {
+            // get items after returning book
+            this.getItems();
+          });
       } else {
         if (dateDifference > 3) {
           message.error('There is a debt to pay of ' + calculateDebt(dateDifference));
@@ -529,23 +553,27 @@ class BooksTable extends Component<Props> {
         }
 
         // @ts-ignore
-        axios.post(`http://localhost:9000/returnDvd/${this.state.returningItem.id}`).then(() => {
-          // get items after returning dvd
-          this.getItems();
-        });
+        axios
+          .post(`${process.env.BACK_END_URL}/returnDvd/${this.state.returningItem.id}`)
+          .then(() => {
+            // get items after returning dvd
+            this.getItems();
+          });
       }
 
       this.setState({ visibleBorrow: false });
     }, 1000);
   };
 
-  // when confirm the delete confirmation
+  /**
+   * when confirm the delete confirmation
+   */
   confirm = (record: any) => {
     if (record.type === ItemType.DVD) {
       axios
-        .delete(`http://localhost:9000/items/dvd/${record.id}`)
+        .delete(`${process.env.BACK_END_URL}/items/dvd/${record.id}`)
         .then(() => {
-          message.success('Successfully deleted');
+          message.success('Successfully deleted the DVD');
           // get items after deleting dvd
           this.getItems();
         })
@@ -555,9 +583,9 @@ class BooksTable extends Component<Props> {
         });
     } else if (record.type === ItemType.BOOK) {
       axios
-        .delete(`http://localhost:9000/items/book/${record.id}`)
+        .delete(`${process.env.BACK_END_URL}/items/book/${record.id}`)
         .then(() => {
-          message.success('Successfully deleted');
+          message.success('Successfully deleted the book');
           // get items after deleting book
           this.getItems();
         })
@@ -568,7 +596,9 @@ class BooksTable extends Component<Props> {
     }
   };
 
-  // when cancel the delete confirmation
+  /**
+   * when cancel the delete confirmation
+   */
   cancel = (e: any) => {
     console.log(e);
     message.error('Canceled deleting');
@@ -586,6 +616,9 @@ class BooksTable extends Component<Props> {
     console.log(formRef);
   };
 
+  /**
+   * generate report with overdue items
+   */
   generateReport = () => {
     const doc = new jsPDF({
       orientation: 'landscape'
@@ -667,15 +700,16 @@ class BooksTable extends Component<Props> {
       // @ts-ignore
       arr.push(tempArr);
     });
-    console.log(arr);
     doc.autoTable(columns, arr);
     doc.output('dataurlnewwindow');
 
     doc.save('overdue-report.pdf');
   };
 
+  /**
+   * when select changes
+   */
   public onSelectChange = (selectedRowKeys: any) => {
-    console.log('selectedRowKeys changed: ', selectedRowKeys);
     this.setState({ selectedRowKeys });
   };
 
@@ -686,15 +720,20 @@ class BooksTable extends Component<Props> {
       onChange: this.onSelectChange
     };
 
+    /**
+     * handles add
+     */
     const handleAdd = () => {
       checkForItemsLimits();
       this.showAddModal();
-      // this.props.action.add(['namez' + Math.ceil(Math.random() * 8), 'sth', 'someother'])
     };
 
+    /**
+     * check item limits
+     */
     const checkForItemsLimits = () => {
       // if items count is higher than 150
-      if (items.items.length >= maximumPossibleItems) {
+      if (this.state.data.length >= maximumPossibleItems) {
         message.error('150 max items limit has been exceeded');
         message.error('Try again by deleting unwanted items');
         return;
@@ -704,7 +743,8 @@ class BooksTable extends Component<Props> {
       let dvdCount = 0;
 
       // find reservations and dvds count
-      for (const item of items.items) {
+      for (const item of this.state.data) {
+        // @ts-ignore
         if (item.type === ItemType.BOOK) {
           booksCount++;
         } else {
@@ -738,9 +778,6 @@ class BooksTable extends Component<Props> {
       });
       this.setState({ filteredData: filteredItems });
     };
-
-    // const hasSelected = selectedRowKeys.length > 0
-    // console.log('size: ', items.items.length)
     // @ts-ignore
     return (
       <Layout>
@@ -756,14 +793,10 @@ class BooksTable extends Component<Props> {
             onSelect={value => {
               if (typeof value !== 'string') {
                 value = value.toString();
-                console.log('Selected: ' + value);
               }
-              // this will execute when an item is selected from the search list
-              // this.updateTable(value);
             }}
             onSearch={value => {
               console.log('Entered: ' + value);
-              // this.updateTable(value);
             }}
             onChange={value => {
               if (typeof value === 'string') {
@@ -774,10 +807,9 @@ class BooksTable extends Component<Props> {
             }}
           />
 
-          {/*add modal*/}
-          {/*<h1>{this.props.reservations.temp ? JSON.stringify(this.props.reservations.temp) : 'sdfio'}</h1>*/}
+          {/*add item modal*/}
           <div>
-            <AddBookForm
+            <AddItemForm
               wrappedComponentRef={this.saveFormRef}
               visible={this.state.visibleAdd}
               onCancel={this.handleCancelAddModal}

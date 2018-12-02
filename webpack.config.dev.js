@@ -3,6 +3,7 @@ const StylishPlugin = require('webpack-stylish')
 const HTMLPlugin = require('html-webpack-plugin')
 const ExtractCSSPlugin = require('mini-css-extract-plugin')
 const BuildNotifierPlugin = require('webpack-build-notifier')
+const webpack = require('webpack');
 
 const config = {
   mode: 'development',
@@ -65,8 +66,12 @@ const config = {
     }),
     new BuildNotifierPlugin({
       suppressSuccess: true
-    })
+    }),
+    new webpack.DefinePlugin({
+      'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV || 'development'),
+      'process.env.BACK_END_URL': JSON.stringify(process.env.BACK_END_URL || 'http://localhost:9000')
+    }),
   ]
-}
+};
 
-module.exports = config
+module.exports = config;

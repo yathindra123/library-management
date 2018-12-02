@@ -11,6 +11,9 @@ interface Props {
   editableData: any;
 }
 
+/**
+ * Edit item modal
+ */
 const EditBookForm = Form.create()(
   class extends Component<Props> {
     render() {
