@@ -13,6 +13,7 @@ const { Header, Content, Footer } = Layout;
 import Login from '../../components/login';
 import BooksTable from 'src/components/books-table';
 import MembersTable from 'src/components/members-table';
+import ReservationsTable from 'src/components/reservations-table';
 import ItemCards from 'src/components/items-cards';
 import { TypeMembersState } from 'src/store/members';
 
@@ -71,6 +72,7 @@ class Home extends Component<Props> {
                 <Route exact={true} path="/login" component={Login} />
                 <Route exact={true} path="/books" component={BooksTable} />
                 <Route exact={true} path="/members" component={MembersTable} />
+                <Route exact={true} path="/reservations" component={ReservationsTable} />
                 <Route exact={true} path="/cards" component={ItemCards} />
                 <Route render={Routes.NotFoundRedirectToRoot} />
               </Switch>

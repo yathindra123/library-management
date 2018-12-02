@@ -6,17 +6,20 @@ import { composeWithDevTools } from 'redux-devtools-extension';
 import { counterReducer, TypeCounterState } from 'src/store/counter';
 import { itemsReducer, State } from 'src/store/items';
 import { membersReducer, TypeMembersState } from 'src/store/members';
+import { reservationsReducer, TypeReservationState } from 'src/store/reservations';
 
 export interface Store {
   counter: TypeCounterState;
   items: State;
   members: TypeMembersState;
+  reservations: TypeReservationState;
 }
 
 const reducers = combineReducers({
   counter: counterReducer,
   items: itemsReducer,
-  members: membersReducer
+  members: membersReducer,
+  reservations: reservationsReducer
 });
 
 export const history = createBrowserHistory();

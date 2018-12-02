@@ -36,6 +36,12 @@ export class LeftSider extends Component {
             </Link>
           </Menu.Item>
           <Menu.Item key="3">
+            <Link to="/reservations">
+              <Icon type="book" theme="outlined" />
+              <span>Reservations Manager</span>
+            </Link>
+          </Menu.Item>
+          <Menu.Item key="4">
             <Link to="/cards">
               <Icon type="book" theme="outlined" />
               <span>Items Borrowing</span>

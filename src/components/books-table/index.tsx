@@ -89,7 +89,7 @@ function calculateDebt(dateDiff: any) {
   return debt;
 }
 class BooksTable extends Component<Props> {
-  // data: any = Array.from(this.props.members.temp);
+  // data: any = Array.from(this.props.reservations.temp);
 
   // create a new array from for searching purpose
   public state = {
@@ -107,8 +107,12 @@ class BooksTable extends Component<Props> {
 
   columns = [
     {
-      title: 'ISBN',
+      title: 'ID',
       dataIndex: 'id'
+    },
+    {
+      title: 'ISBN',
+      dataIndex: 'isbn'
     },
     {
       title: 'Title',
@@ -263,15 +267,13 @@ class BooksTable extends Component<Props> {
     });
   };
 
-  handleCancelAddModal = (e: any) => {
-    console.log(e);
+  handleCancelAddModal = () => {
     this.setState({
       visibleAdd: false
     });
   };
 
-  handleCancelBorrowModal = (e: any) => {
-    console.log(e);
+  handleCancelBorrowModal = () => {
     this.setState({
       visibleBorrow: false
     });
@@ -312,13 +314,6 @@ class BooksTable extends Component<Props> {
         .replace(/-/g, '-');
 
       const publicationDate: any[] = publicationDateTemp.split('-');
-
-      // const borrowedDateTemp = new Date(values.borrowedDate)
-      //   .toISOString()
-      //   .slice(0, 10)
-      //   .replace(/-/g, '-');
-      //
-      // const borrowedDate: any[] = borrowedDateTemp.split('-');
 
       const authorNames = values.names;
 
@@ -386,11 +381,12 @@ class BooksTable extends Component<Props> {
             author: authors
           })
           .then(() => {
+            this.handleCancelAddModal();
             // get items after adding book
             this.getItems();
           })
-          .catch(error => {
-            console.log(error);
+          .catch(() => {
+            message.error('Error in entered values');
           });
       } else if (values.type === ItemType.DVD) {
         axios
@@ -421,11 +417,12 @@ class BooksTable extends Component<Props> {
             actors
           })
           .then(() => {
+            this.handleCancelAddModal();
             // get items after adding dvd
             this.getItems();
           })
-          .catch(error => {
-            console.log(error);
+          .catch(() => {
+            message.error('Error in entered values');
           });
       } else {
         message.error('Invalid type: ' + values.type);
@@ -463,6 +460,7 @@ class BooksTable extends Component<Props> {
             }`
           )
           .then(() => {
+            this.handleCancelBorrowModal();
             // get items after borrowing book
             this.getItems();
           });
@@ -482,6 +480,7 @@ class BooksTable extends Component<Props> {
               }`
             )
             .then(() => {
+              this.handleCancelBorrowModal();
               // get items after borrowing dvd
               this.getItems();
             });
@@ -591,36 +590,6 @@ class BooksTable extends Component<Props> {
     const doc = new jsPDF({
       orientation: 'landscape'
     });
-    // const data = [
-    //   [1, 'Denmark', 7.526, 'Copenhagen'],
-    //   [2, 'Switzerland', 7.509, 'Bern'],
-    //   [3, 'Iceland', 7.501, 'Reykjavík'],
-    //   [4, 'Norway', 7.498, 'Oslo'],
-    //   [5, 'Finland', 7.413, 'Helsinki']
-    // ];
-    //
-    // doc.autoTable(columns, data);
-    // doc.output('dataurlnewwindow');
-    // let res = doc.autoTableHtmlToJson(document.getElementById('basic-table'));
-    // doc.autoTable(res.columns, res.data, { margin: { top: 80 } });
-    //
-    // let header = function(data) {
-    //   doc.setFontSize(18);
-    //   doc.setTextColor(40);
-    //   doc.setFontStyle('normal');
-    //   doc.addImage(headerImgData, 'JPEG', data.settings.margin.left, 20, 50, 50);
-    //   doc.text('Testing Report', data.settings.margin.left, 50);
-    // };
-    //
-    // let options = {
-    //   beforePageContent: header,
-    //   margin: {
-    //     top: 80
-    //   },
-    //   startY: doc.autoTableEndPosY() + 20
-    // };
-    //
-    // doc.autoTable(res.columns, res.data, options);
 
     const tempReportData: Item[] = [];
     const tableData = this.state.filteredData;
@@ -734,7 +703,7 @@ class BooksTable extends Component<Props> {
       let booksCount = 0;
       let dvdCount = 0;
 
-      // find members and dvds count
+      // find reservations and dvds count
       for (const item of items.items) {
         if (item.type === ItemType.BOOK) {
           booksCount++;
@@ -743,10 +712,10 @@ class BooksTable extends Component<Props> {
         }
       }
 
-      // check members and dvds for maximum possible count
+      // check reservations and dvds for maximum possible count
       if (booksCount > maximumPossibleBooks) {
         message.error(`${maximumPossibleBooks} items of books limit has been exceeded`);
-        message.error('Try again by deleting unwanted members');
+        message.error('Try again by deleting unwanted reservations');
         return;
       } else if (dvdCount > maximumPossibleDVDs) {
         message.error(`${maximumPossibleDVDs} items of DVDs limit has been exceeded`);
@@ -767,16 +736,6 @@ class BooksTable extends Component<Props> {
           filteredItems.push(item);
         }
       });
-      console.log(filteredItems);
-      // filteredBooks = filteredItems;
-      // const tempData: any[] = [];
-      // data.filter((item: any) => {
-      //   filteredBooks.map(book => {
-      //     if (book === item.name) {
-      //       tempData.push(item);
-      //     }
-      //   });
-      // });
       this.setState({ filteredData: filteredItems });
     };
 
@@ -816,7 +775,7 @@ class BooksTable extends Component<Props> {
           />
 
           {/*add modal*/}
-          {/*<h1>{this.props.members.temp ? JSON.stringify(this.props.members.temp) : 'sdfio'}</h1>*/}
+          {/*<h1>{this.props.reservations.temp ? JSON.stringify(this.props.reservations.temp) : 'sdfio'}</h1>*/}
           <div>
             <AddBookForm
               wrappedComponentRef={this.saveFormRef}

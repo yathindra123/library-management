@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Row, Col, Layout, Card, Button, message, Avatar, Tooltip } from 'antd';
+import { Row, Col, Layout, Card, Button, message, Avatar, Tooltip, Badge } from 'antd';
 import { itemsAction, TypeItemAction, State } from 'src/store/items';
 import { Store } from 'src/store';
 import { bindActionCreators, Dispatch } from 'redux';
@@ -8,6 +8,7 @@ import axios from 'axios';
 import BorrowItemForm from 'src/components/borrow-item';
 import { ItemType } from 'src/enums/item';
 import './borrow-modal.css';
+import ReserveItemForm from 'src/components/reserve-item';
 
 interface Props {
   action: TypeItemAction;
@@ -32,11 +33,22 @@ function calculateDebt(dateDiff: any) {
   return debt;
 }
 
+function addDays(strDate: string, daysToAdd: number): string {
+  const date = new Date(strDate);
+  const newDate = new Date(date.setDate(date.getDate() + daysToAdd));
+
+  const strNewDate = newDate
+    .toISOString()
+    .slice(0, 10)
+    .replace(/-/g, '-');
+  return strNewDate;
+}
+
 function getDateDifference(startDate: string, endDate: string) {
   const diff = Math.floor(
     (Date.parse(endDate.replace(/-/g, '/')) - Date.parse(startDate.replace(/-/g, '/'))) / 86400000
   );
-
+  console.log(diff);
   return diff;
 }
 
@@ -66,13 +78,17 @@ const getCurrentDate = () => {
 class ItemCards extends Component<Props> {
   public state = {
     data: [],
+    // reservations: [],
     visibleBorrow: false,
     visibleReturn: false,
+    visibleReserve: false,
     borrowingItem: {},
-    returningItem: {}
+    returningItem: {},
+    reservationItem: {}
   };
 
   private borrowFormRef: any;
+  private reserveFormRef: any;
 
   componentDidMount() {
     this.getItems();
@@ -85,10 +101,20 @@ class ItemCards extends Component<Props> {
         data: this.props.items
       });
     });
+
+    // axios.get(`http://localhost:9000/reservations`).then(res => {
+    //   this.setState({
+    //     reservations: res.data
+    //   });
+    // });
   };
 
   borrowItemFormRef = (formRef: any) => {
     this.borrowFormRef = formRef;
+  };
+
+  reserveItemFormRef = (formRef: any) => {
+    this.reserveFormRef = formRef;
   };
 
   showBorrowModal = (card: any) => {
@@ -102,9 +128,26 @@ class ItemCards extends Component<Props> {
     });
   };
 
+  showReservationModal = (card: any) => {
+    if (!card.currentReader) {
+      message.error('You can borrow this. No need to reserve');
+      return;
+    }
+    this.setState({
+      visibleReserve: true,
+      reservationItem: card
+    });
+  };
+
   handleCancelBorrowModal = () => {
     this.setState({
       visibleBorrow: false
+    });
+  };
+
+  handleCancelReserveModal = () => {
+    this.setState({
+      visibleReserve: false
     });
   };
 
@@ -217,6 +260,72 @@ class ItemCards extends Component<Props> {
     }, 1000);
   };
 
+  handleReserve = () => {
+    const form = this.reserveFormRef.props.form;
+    form.validateFields((err: any, values: any) => {
+      if (err) {
+        return;
+      }
+
+      let normalReturnDate = '';
+
+      // @ts-ignore
+      if (this.state.reservationItem.type === ItemType.DVD) {
+        // @ts-ignore
+        normalReturnDate = addDays(this.state.reservationItem.borrowedDate, 3);
+        // TODO all the reservation dates sholud add to this normal return date (here or below)
+        // @ts-ignore
+      } else if (this.state.reservationItem.type === ItemType.BOOK) {
+        // TODO all the reservation dates sholud add to this normal return date (here or below)
+        // @ts-ignore
+        normalReturnDate = addDays(this.state.reservationItem.borrowedDate, 7);
+      }
+
+      // @ts-ignore
+      if (getDateDifference(getCurrentDate(), normalReturnDate) > 0) {
+        // let count
+        // this.state.reservations.map(reservation => {
+        //   // @ts-ignore
+        //   if (reservation.id === this.state.reservationItem.id) {
+        //
+        //   }
+        // });
+        message.info('This item will normally return on : ' + normalReturnDate);
+      } else {
+        message.info('Return date of this item has already exceeded');
+      }
+
+      axios
+        .post(
+          // @ts-ignore
+          `http://localhost:9000/reservation`,
+          {
+            id: null,
+            // @ts-ignore
+            isbn: this.state.reservationItem.isbn,
+            reservedReader: {
+              id: values.borrowerID,
+              name: '',
+              mobile: '',
+              email: ''
+            }
+          }
+        )
+        .then(() => {
+          // get items after a reservation (Not Mandatory)
+          this.getItems();
+        })
+        .catch(() => {
+          message.error('Invalid reader ID');
+        });
+
+      // @ts-ignore
+      form.resetFields();
+      this.setState({ visibleReserve: false });
+    });
+    // this.setState({ visibleBorrow: false });
+  };
+
   createTable = () => {
     const cardList: any[] = [];
     const cards = this.state.data;
@@ -224,12 +333,26 @@ class ItemCards extends Component<Props> {
     cards.map((card: any, i: number) => {
       cardList.push(
         <Col span={8} key={i} style={{ width: '25em', marginTop: '3em' }}>
-          <Card title={card.title} bordered={false}>
+          <Card title={card.title} bordered={true}>
             <div style={{ position: 'relative', left: '40%', width: '20%', marginBottom: '1em' }}>
               {card.type === ItemType.BOOK ? (
-                <Avatar shape="square" size="large" icon="book" />
+                card.borrowedDate ? (
+                  <Badge dot={true}>
+                    <Avatar shape="square" size="large" icon="book" />
+                  </Badge>
+                ) : (
+                  <Badge dot={true} style={{ backgroundColor: '#52c41a' }}>
+                    <Avatar shape="square" size="large" icon="book" />
+                  </Badge>
+                )
+              ) : card.borrowedDate ? (
+                <Badge dot={true}>
+                  <Avatar shape="square" size="large" icon="play-circle" />
+                </Badge>
               ) : (
-                <Avatar shape="square" size="large" icon="play-circle" />
+                <Badge dot={true} style={{ backgroundColor: '#52c41a' }}>
+                  <Avatar shape="square" size="large" icon="play-circle" />
+                </Badge>
               )}
             </div>
             {card.currentReader ? 'Borrower : ' : 'No one taken yet'}
@@ -253,6 +376,15 @@ class ItemCards extends Component<Props> {
                   onClick={() => this.showReturnModal(card)}
                 />
               </Tooltip>
+              {card.borrowedDate ? (
+                <Tooltip placement="bottom" title={'Make Reservation'}>
+                  <Button
+                    icon="save"
+                    style={{ marginRight: '1em', position: 'absolute', right: '0px' }}
+                    onClick={() => this.showReservationModal(card)}
+                  />
+                </Tooltip>
+              ) : null}
             </Col>
             <div>
               <BorrowItemForm
@@ -261,6 +393,14 @@ class ItemCards extends Component<Props> {
                 onCancel={this.handleCancelBorrowModal}
                 onCreate={this.handleBorrow}
                 borrowingItem={card}
+              />
+            </div>
+            <div>
+              <ReserveItemForm
+                wrappedComponentRef={this.reserveItemFormRef}
+                visible={this.state.visibleReserve}
+                onCancel={this.handleCancelReserveModal}
+                onCreate={this.handleReserve}
               />
             </div>
           </Card>

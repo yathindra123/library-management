@@ -1,3 +1,7 @@
 .ant-modal-mask {
   background-color: transparent !important;
 }
+.ant-badge-dot {
+  width: 1em !important;
+  height: 1em !important;
+}
