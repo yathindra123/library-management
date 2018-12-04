@@ -1,12 +1,12 @@
 import React, { Component } from 'react';
-import { Modal, Form, Input, DatePicker } from 'antd';
-
+import { Modal, Form, Input, DatePicker, TimePicker } from 'antd';
 const FormItem = Form.Item;
 
 interface Props {
   visible: any;
   onCancel: any;
   onCreate: any;
+  onChange: any;
   form: any;
   borrowingItem: any;
 }
@@ -17,7 +17,7 @@ interface Props {
 const BorrowItemForm = Form.create()(
   class extends Component<Props> {
     render() {
-      const { visible, onCancel, onCreate, form } = this.props;
+      const { visible, onCancel, onCreate, onChange, form } = this.props;
       const { getFieldDecorator } = form;
       const formItemLayout = {
         labelCol: {
@@ -49,6 +49,9 @@ const BorrowItemForm = Form.create()(
             </FormItem>
             <FormItem {...formItemLayout} label="Borrowing date">
               {getFieldDecorator('borrowingDate', config)(<DatePicker />)}
+            </FormItem>
+            <FormItem {...formItemLayout} label="Borrowing time">
+              {getFieldDecorator('borrowingTime', config)(<TimePicker onChange={onChange} />)}
             </FormItem>
           </Form>
         </Modal>

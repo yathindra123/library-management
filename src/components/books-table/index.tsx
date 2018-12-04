@@ -14,6 +14,7 @@ import ReturnItemForm from 'src/components/return-item';
 import axios from 'axios';
 import { ItemType } from 'src/enums/item';
 import { Item } from 'src/model/item';
+import { string } from 'prop-types';
 
 interface Props {
   action: TypeItemAction;
@@ -115,7 +116,8 @@ class BooksTable extends Component<Props> {
     filteredData: [],
     borrowingItem: {},
     returningItem: {},
-    deletingItem: {}
+    deletingItem: {},
+    borrowingTime: string
   };
 
   columns = [
@@ -156,6 +158,10 @@ class BooksTable extends Component<Props> {
     {
       title: 'Borrowed Date',
       dataIndex: 'borrowedDate'
+    },
+    {
+      title: 'Borrowed Time(HH:MM:SS)',
+      dataIndex: 'borrowedTime'
     },
     {
       title: 'Available languages',
@@ -393,12 +399,18 @@ class BooksTable extends Component<Props> {
             publicationDate: {
               year: publicationDate[0],
               month: publicationDate[1],
-              day: publicationDate[2]
+              day: publicationDate[2],
+              hour: 1,
+              minute: 12,
+              sec: 12
             },
             borrowedDate: {
               year: 0,
               month: 0,
-              day: 0
+              day: 0,
+              hour: 1,
+              minute: 12,
+              sec: 12
             },
             currentReader: {
               id: values.borrower,
@@ -426,12 +438,18 @@ class BooksTable extends Component<Props> {
             publicationDate: {
               year: publicationDate[0],
               month: publicationDate[1],
-              day: publicationDate[2]
+              day: publicationDate[2],
+              hour: 1,
+              minute: 12,
+              sec: 12
             },
             borrowedDate: {
               year: 0,
               month: 0,
-              day: 0
+              day: 0,
+              hour: 1,
+              minute: 12,
+              sec: 12
             },
             currentReader: {
               id: '',
@@ -459,6 +477,16 @@ class BooksTable extends Component<Props> {
   };
 
   /**
+   * set borrowing item
+   * @param time
+   * @param timeString
+   */
+  // @ts-ignore
+  storeBorrowingTime = (time: any, timeString: string) => {
+    this.setState({ borrowingTime: timeString });
+  };
+
+  /**
    * calls when borrow button clicked
    */
   handleBorrow = () => {
@@ -478,7 +506,7 @@ class BooksTable extends Component<Props> {
         axios
           .post(
             // @ts-ignore
-            `${process.env.BACK_END_URL}/borrowBook/${this.state.borrowingItem.id}/${borrowingDate}/${values.borrowerId}`
+            `${process.env.BACK_END_URL}/borrowBook/${this.state.borrowingItem.id}/${borrowingDate}/${this.state.borrowingTime}/${values.borrowerId}`
           )
           .then(() => {
             this.handleCancelBorrowModal();
@@ -486,7 +514,6 @@ class BooksTable extends Component<Props> {
             this.getItems();
           });
 
-        // @ts-ignore
         form.resetFields();
         this.setState({ visibleBorrow: false });
       } else {
@@ -496,7 +523,7 @@ class BooksTable extends Component<Props> {
           axios
             .post(
               // @ts-ignore
-              `${process.env.BACK_END_URL}/borrowDvd/${this.state.borrowingItem.id}/${borrowingDate}/${values.borrowerId}`
+              `${process.env.BACK_END_URL}/borrowDvd/${this.state.borrowingItem.id}/${borrowingDate}/${this.state.borrowingTime}/${values.borrowerId}`
             )
             .then(() => {
               this.handleCancelBorrowModal();
@@ -552,8 +579,8 @@ class BooksTable extends Component<Props> {
           message.info('Successfully returned the book');
         }
 
-        // @ts-ignore
         axios
+          // @ts-ignore
           .post(`${process.env.BACK_END_URL}/returnDvd/${this.state.returningItem.id}`)
           .then(() => {
             // get items after returning dvd
@@ -823,6 +850,7 @@ class BooksTable extends Component<Props> {
               visible={this.state.visibleBorrow}
               onCancel={this.handleCancelBorrowModal}
               onCreate={this.handleBorrow}
+              onChange={this.storeBorrowingTime}
               borrowingItem={this.state.borrowingItem}
             />
           </div>

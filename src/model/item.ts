@@ -5,6 +5,7 @@ export interface Item {
   availLanguages: any[];
   availSubtitles: any[];
   borrowedDate: string;
+  borrowedTime: string;
   currentReader: any;
   id: string;
   isbn: string;

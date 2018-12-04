@@ -59,6 +59,7 @@ function addItemHandler(state: State, item: any): State {
 function setItemHandler(state: State, bookList: Item[]) {
   // format data
   let dateString = '';
+  let timeString = '';
   bookList.map((item: any) => {
     // publication date
     if (item.publicationDate) {
@@ -71,10 +72,13 @@ function setItemHandler(state: State, bookList: Item[]) {
     if (item.borrowedDate) {
       const date = item.borrowedDate;
       dateString = `${date.year}-${date.month}-${date.day}`;
+      timeString = `${date.hour}-${date.minute}-${date.sec}`;
       item.borrowedDate = dateString;
+      item.borrowedTime = timeString;
 
       if (item.borrowedDate === '0-0-0') {
         item.borrowedDate = '';
+        item.borrowedTime = '';
       }
     }
 

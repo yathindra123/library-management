@@ -9,6 +9,7 @@ import BorrowItemForm from 'src/components/borrow-item';
 import { ItemType } from 'src/enums/item';
 import './borrow-modal.css';
 import ReserveItemForm from 'src/components/reserve-item';
+import { string } from 'prop-types';
 
 interface Props {
   action: TypeItemAction;
@@ -101,7 +102,8 @@ class ItemCards extends Component<Props> {
     visibleReserve: false,
     borrowingItem: {},
     returningItem: {},
-    reservationItem: {}
+    reservationItem: {},
+    borrowingTime: string
   };
 
   private borrowFormRef: any;
@@ -196,7 +198,7 @@ class ItemCards extends Component<Props> {
         axios
           .post(
             // @ts-ignore
-            `${process.env.BACK_END_URL}/borrowBook/${this.state.borrowingItem.id}/${borrowingDate}/${values.borrowerId}`
+            `${process.env.BACK_END_URL}/borrowBook/${this.state.borrowingItem.id}/${borrowingDate}/${this.state.borrowingTime}/${values.borrowerId}`
           )
           .then(() => {
             // get items after borrowing book
@@ -214,7 +216,7 @@ class ItemCards extends Component<Props> {
         axios
           .post(
             // @ts-ignore
-            `${process.env.BACK_END_URL}/borrowDvd/${this.state.borrowingItem.id}/${borrowingDate}/${values.borrowerId}`
+            `${process.env.BACK_END_URL}/borrowDvd/${this.state.borrowingItem.id}/${borrowingDate}/${this.state.borrowingTime}/${values.borrowerId}`
           )
           .then(() => {
             // get items after borrowing dvd
@@ -230,6 +232,16 @@ class ItemCards extends Component<Props> {
       }
     });
     // this.setState({ visibleBorrow: false });
+  };
+
+  /**
+   * set borrowing item
+   * @param time
+   * @param timeString
+   */
+  // @ts-ignore
+  storeBorrowingTime = (time: any, timeString: string) => {
+    this.setState({ borrowingTime: timeString });
   };
 
   /**
@@ -300,10 +312,14 @@ class ItemCards extends Component<Props> {
       if (this.state.reservationItem.type === ItemType.DVD) {
         // @ts-ignore
         normalReturnDate = addDays(this.state.reservationItem.borrowedDate, 3);
-        // TODO all the reservation dates sholud add to this normal return date (here or below)
+        console.log('normalzzD: ' + this.state.reservationItem.borrowedDate);
+        console.log('normalzzDT: ' + this.state.reservationItem.borrowedTime);
+        // TODO add the time as well to increase accuracy
         // @ts-ignore
       } else if (this.state.reservationItem.type === ItemType.BOOK) {
-        // TODO all the reservation dates sholud add to this normal return date (here or below)
+        console.log('normalzzB: ' + this.state.reservationItem.borrowedDate);
+        console.log('normalzzBT: ' + this.state.reservationItem.borrowedTime);
+        // TODO add the time as well to increase accuracy
         // @ts-ignore
         normalReturnDate = addDays(this.state.reservationItem.borrowedDate, 7);
       }
@@ -340,7 +356,6 @@ class ItemCards extends Component<Props> {
           message.error('Invalid reader ID');
         });
 
-      // @ts-ignore
       form.resetFields();
       this.setState({ visibleReserve: false });
     });
@@ -382,6 +397,9 @@ class ItemCards extends Component<Props> {
             {card.borrowedDate ? 'Borrowed Date : ' : null}
             {card.borrowedDate ? card.borrowedDate : null}
             <br />
+            {card.borrowedDate ? 'Borrowed Time : ' : null}
+            {card.borrowedTime ? card.borrowedTime : null}
+            <br />
             <Col style={{ marginTop: 'auto', marginBottom: 'auto', paddingTop: '1em' }}>
               <Tooltip placement="bottom" title={'Borrow'}>
                 <Button
@@ -413,6 +431,7 @@ class ItemCards extends Component<Props> {
                 visible={this.state.visibleBorrow}
                 onCancel={this.handleCancelBorrowModal}
                 onCreate={this.handleBorrow}
+                onChange={this.storeBorrowingTime}
                 borrowingItem={card}
               />
             </div>
