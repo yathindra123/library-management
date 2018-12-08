@@ -4,6 +4,7 @@ const actionCreator = actionCreatorFactory('reservationsList');
 
 export interface Reservation {
   isbn: string;
+  timeInHours: number;
   currentReader: any;
 }
 

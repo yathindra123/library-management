@@ -10,6 +10,7 @@ import { ItemType } from 'src/enums/item';
 import './borrow-modal.css';
 import ReserveItemForm from 'src/components/reserve-item';
 import { string } from 'prop-types';
+import { Reservation } from 'src/store/reservations';
 
 interface Props {
   action: TypeItemAction;
@@ -65,6 +66,15 @@ function getDateDifference(startDate: string, endDate: string) {
 }
 
 /**
+ * get date time difference in hours
+ */
+// function getDateTimeDifferenceInHours(startDate: Date, endDate: Date) {
+//   // @ts-ignore
+//   const diff: number = startDate - endDate; // millis
+//   return diff.getHours();
+// }
+
+/**
  * get current date
  */
 const getCurrentDate = () => {
@@ -90,6 +100,41 @@ const getCurrentDate = () => {
   return today;
 };
 
+function getTotalReservedTime(isbn: string) {
+  let reservations: Reservation[] = [];
+  const reservedHours: number[] = [];
+  let totalReservedTime = 0;
+
+  axios.get(`${process.env.BACK_END_URL}/reservations/${isbn}`).then(res => {
+    reservations = res.data;
+    reservations.map(reservation => {
+      reservedHours.push(reservation.timeInHours);
+    });
+  });
+
+  // calculate total hours
+  reservedHours.map(timeSlice => {
+    totalReservedTime += timeSlice;
+  });
+
+  return totalReservedTime;
+}
+
+function formatDate(date: any) {
+  const dateObj = new Date(date);
+  let month = '' + (dateObj.getMonth() + 1);
+  let day = '' + dateObj.getDate();
+  const year = dateObj.getFullYear();
+
+  if (month.length < 2) {
+    month = '0' + month;
+  }
+  if (day.length < 2) {
+    day = '0' + day;
+  }
+  return [year, month, day].join(':') + ' | ' + [dateObj.getHours(), dateObj.getMinutes(), dateObj.getSeconds()].join(':');
+}
+
 /**
  * cards view of items
  */
@@ -103,6 +148,7 @@ class ItemCards extends Component<Props> {
     borrowingItem: {},
     returningItem: {},
     reservationItem: {},
+    reservationType: string,
     borrowingTime: string
   };
 
@@ -154,7 +200,8 @@ class ItemCards extends Component<Props> {
     }
     this.setState({
       visibleReserve: true,
-      reservationItem: card
+      reservationItem: card,
+      reservationType: card.type
     });
   };
 
@@ -198,7 +245,9 @@ class ItemCards extends Component<Props> {
         axios
           .post(
             // @ts-ignore
-            `${process.env.BACK_END_URL}/borrowBook/${this.state.borrowingItem.id}/${borrowingDate}/${this.state.borrowingTime}/${values.borrowerId}`
+            `${process.env.BACK_END_URL}/borrowBook/${
+              this.state.borrowingItem.id
+            }/${borrowingDate}/${this.state.borrowingTime}/${values.borrowerId}`
           )
           .then(() => {
             // get items after borrowing book
@@ -216,7 +265,9 @@ class ItemCards extends Component<Props> {
         axios
           .post(
             // @ts-ignore
-            `${process.env.BACK_END_URL}/borrowDvd/${this.state.borrowingItem.id}/${borrowingDate}/${this.state.borrowingTime}/${values.borrowerId}`
+            `${process.env.BACK_END_URL}/borrowDvd/${
+              this.state.borrowingItem.id
+            }/${borrowingDate}/${this.state.borrowingTime}/${values.borrowerId}`
           )
           .then(() => {
             // get items after borrowing dvd
@@ -309,24 +360,48 @@ class ItemCards extends Component<Props> {
       let normalReturnDate = '';
 
       // @ts-ignore
+      const dateArr: number[] = this.state.reservationItem.borrowedDate.split('-');
+      // @ts-ignore
+      const timeArr: number[] = this.state.reservationItem.borrowedTime.split('-');
+
+      const startDate = new Date(
+        Date.UTC(dateArr[0], dateArr[1], dateArr[2], timeArr[0], timeArr[1], timeArr[2])
+      );
+
+      // const endDate = new Date();
+      const endDate = new Date(Date.now());
+
+      // @ts-ignore
+      const isbn = this.state.reservationItem.isbn;
+
+      // @ts-ignore
       if (this.state.reservationItem.type === ItemType.DVD) {
         // @ts-ignore
         normalReturnDate = addDays(this.state.reservationItem.borrowedDate, 3);
-        console.log('normalzzD: ' + this.state.reservationItem.borrowedDate);
-        console.log('normalzzDT: ' + this.state.reservationItem.borrowedTime);
-        // TODO add the time as well to increase accuracy
         // @ts-ignore
       } else if (this.state.reservationItem.type === ItemType.BOOK) {
-        console.log('normalzzB: ' + this.state.reservationItem.borrowedDate);
-        console.log('normalzzBT: ' + this.state.reservationItem.borrowedTime);
-        // TODO add the time as well to increase accuracy
         // @ts-ignore
         normalReturnDate = addDays(this.state.reservationItem.borrowedDate, 7);
       }
 
       // @ts-ignore
       if (getDateDifference(getCurrentDate(), normalReturnDate) > 0) {
-        message.info('This item will normally return on : ' + normalReturnDate);
+        const reservedTimeInHrs = getTotalReservedTime(isbn);
+        const tempDateArr: number[] = normalReturnDate.split('-');
+        const date = new Date(
+          tempDateArr[0],
+          tempDateArr[1] - 1,
+          tempDateArr[2],
+          timeArr[0],
+          timeArr[1],
+          timeArr[2]
+        );
+
+        console.log(date);
+
+        const expectedAvailDate = date.setHours(date.getHours() + reservedTimeInHrs);
+
+        message.info('This item will normally available on : ' + formatDate(expectedAvailDate));
       } else {
         message.info('Return date of this item has already exceeded');
       }
@@ -339,6 +414,7 @@ class ItemCards extends Component<Props> {
             id: null,
             // @ts-ignore
             isbn: this.state.reservationItem.isbn,
+            timeInHours: values.timePeriod,
             reservedReader: {
               id: values.borrowerID,
               name: '',
@@ -441,6 +517,8 @@ class ItemCards extends Component<Props> {
                 visible={this.state.visibleReserve}
                 onCancel={this.handleCancelReserveModal}
                 onCreate={this.handleReserve}
+                // @ts-ignore
+                reservationType={this.state.reservationType}
               />
             </div>
           </Card>

@@ -1,5 +1,7 @@
 import React, { Component } from 'react';
-import { Modal, Form, Input } from 'antd';
+import { Modal, Form, Input, InputNumber } from 'antd';
+import { Reservation } from 'src/store/reservations';
+import { ItemType } from 'src/enums/item';
 
 const FormItem = Form.Item;
 
@@ -8,12 +10,13 @@ interface Props {
   onCancel: any;
   onCreate: any;
   form: any;
+  reservationType: string;
 }
 
 const ReserveItemForm = Form.create()(
   class extends Component<Props> {
     render() {
-      const { visible, onCancel, onCreate, form } = this.props;
+      const { visible, onCancel, onCreate, form, reservationType } = this.props;
       const { getFieldDecorator } = form;
       return (
         <Modal
@@ -30,6 +33,19 @@ const ReserveItemForm = Form.create()(
                 rules: [{ required: true, message: 'Please enter the borrower ID' }]
               })(<Input />)}
             </FormItem>
+            {reservationType === ItemType.BOOK ? (
+              <FormItem label="For how long(In hrs)?">
+                {getFieldDecorator('timePeriod', {
+                  rules: [{ required: true, message: 'Please enter the borrower ID' }]
+                })(<InputNumber min={1} max={168} defaultValue={3} />)}
+              </FormItem>
+            ) : (
+              <FormItem label="For how long(In hrs)?">
+                {getFieldDecorator('timePeriod', {
+                  rules: [{ required: true, message: 'Please enter the borrower ID' }]
+                })(<InputNumber min={10} max={72} defaultValue={9} />)}
+              </FormItem>
+            )}
           </Form>
         </Modal>
       );

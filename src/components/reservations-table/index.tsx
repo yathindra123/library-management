@@ -33,6 +33,10 @@ class ReservationsTable extends Component<Props> {
       dataIndex: 'isbn'
     },
     {
+      title: 'Time (In Hours)',
+      dataIndex: 'timeInHours'
+    },
+    {
       title: 'UserID',
       dataIndex: 'reservedReader.id'
     },
