@@ -245,9 +245,7 @@ class ItemCards extends Component<Props> {
         axios
           .post(
             // @ts-ignore
-            `${process.env.BACK_END_URL}/borrowBook/${
-              this.state.borrowingItem.id
-            }/${borrowingDate}/${this.state.borrowingTime}/${values.borrowerId}`
+            `${process.env.BACK_END_URL}/borrowBook/${this.state.borrowingItem.id}/${borrowingDate}/${this.state.borrowingTime}/${values.borrowerId}`
           )
           .then(() => {
             // get items after borrowing book
@@ -265,9 +263,7 @@ class ItemCards extends Component<Props> {
         axios
           .post(
             // @ts-ignore
-            `${process.env.BACK_END_URL}/borrowDvd/${
-              this.state.borrowingItem.id
-            }/${borrowingDate}/${this.state.borrowingTime}/${values.borrowerId}`
+            `${process.env.BACK_END_URL}/borrowDvd/${this.state.borrowingItem.id}/${borrowingDate}/${this.state.borrowingTime}/${values.borrowerId}`
           )
           .then(() => {
             // get items after borrowing dvd
@@ -360,16 +356,7 @@ class ItemCards extends Component<Props> {
       let normalReturnDate = '';
 
       // @ts-ignore
-      const dateArr: number[] = this.state.reservationItem.borrowedDate.split('-');
-      // @ts-ignore
       const timeArr: number[] = this.state.reservationItem.borrowedTime.split('-');
-
-      const startDate = new Date(
-        Date.UTC(dateArr[0], dateArr[1], dateArr[2], timeArr[0], timeArr[1], timeArr[2])
-      );
-
-      // const endDate = new Date();
-      const endDate = new Date(Date.now());
 
       // @ts-ignore
       const isbn = this.state.reservationItem.isbn;
@@ -387,6 +374,7 @@ class ItemCards extends Component<Props> {
       // @ts-ignore
       if (getDateDifference(getCurrentDate(), normalReturnDate) > 0) {
         const reservedTimeInHrs = getTotalReservedTime(isbn);
+        // @ts-ignore
         const tempDateArr: number[] = normalReturnDate.split('-');
         const date = new Date(
           tempDateArr[0],
@@ -396,8 +384,6 @@ class ItemCards extends Component<Props> {
           timeArr[1],
           timeArr[2]
         );
-
-        console.log(date);
 
         const expectedAvailDate = date.setHours(date.getHours() + reservedTimeInHrs);
 

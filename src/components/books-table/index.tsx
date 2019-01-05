@@ -196,6 +196,10 @@ class BooksTable extends Component<Props> {
       dataIndex: 'publicationDate'
     },
     {
+      title: 'Publisher',
+      dataIndex: 'publisher.name'
+    },
+    {
       title: 'Person borrowed',
       dataIndex: 'currentReader'
     },
@@ -418,6 +422,10 @@ class BooksTable extends Component<Props> {
               mobile: '',
               email: ''
             },
+            publisher: {
+              id: '',
+              name: values.publisher
+            },
             author: authors
           })
           .then(() => {
@@ -456,6 +464,10 @@ class BooksTable extends Component<Props> {
               name: '',
               mobile: '',
               email: ''
+            },
+            publisher: {
+              id: '',
+              name: values.publisher
             },
             availLanguages: languages,
             availSubtitles: subtitles,

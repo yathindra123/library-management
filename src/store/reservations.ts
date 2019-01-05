@@ -43,6 +43,7 @@ function addReservationsHandler(
   state: TypeReservationState,
   reservation: any
 ): TypeReservationState {
+  // @ts-ignore
   state.reservations.push({
     isbn: reservation[0],
     currentReader: reservation[1]

@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { Modal, Form, Input, InputNumber } from 'antd';
-import { Reservation } from 'src/store/reservations';
+// import { Reservation } from 'src/store/reservations';
 import { ItemType } from 'src/enums/item';
 
 const FormItem = Form.Item;
